@@ -1,0 +1,88 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultra.net.nz/thyemeleaf/layout"
+    layout:decorate=~{layout}>
+<!--<title>Ver Usuario</title>-->
+
+<body layout:fragment="body">
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <img style="max-height: 250px; object-fit: contain; margin-top: 20px;" class="card-img-top"
+                        alt="Imagen del usuario"
+                        th:src="|${ #strings.equalsIgnoreCase(usuarioDirecciones.Usuario.Sexo, 'M') ? 
+                                        'https://cdn-icons-png.flaticon.com/512/265/265674.png' : 
+                                        (#strings.equalsIgnoreCase(usuarioDirecciones.Usuario.Sexo, 'F') ? 
+                                            'https://cdn-icons-png.flaticon.com/512/2922/2922561.png' : 
+                                            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNT31I-b-Jdf8bjPM-mm-V1qCpb-oudRLvtw&s') }|">
+                    <div class="card-body">
+                        <h3
+                            th:text="|${usuarioDirecciones.Usuario.Nombre} ${usuarioDirecciones.Usuario.ApellidoPaterno} ${usuarioDirecciones.Usuario.ApellidoMaterno}|">
+                        </h3>
+                        <p class="card-text" th:text="|Username: ${usuarioDirecciones.Usuario.Username}|"></p>
+                        <p class="card-text" th:text="|Email: ${usuarioDirecciones.Usuario.Email}|"></p>
+                        <!-- Editar Usuario -->
+                        <a class="btn btn-warning btn-sm"
+                            th:href="@{/Usuario/formEditable(IdUsuario=${usuarioDirecciones.Usuario.IdUsuario})}">Editar datos</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Direcciones Asignadas</h5>
+                        <a class="btn btn-secondary mt-2 col-12"
+                            th:href="@{/Usuario/formEditable?IdUsuario=}+${usuarioDirecciones.Usuario.IdUsuario}+'&IdDireccion=0'">Agregar Dirección</a>
+
+                        <br /><br />
+
+                        <table class="table table-responsive table-bordered table-dark table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Direccion</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="direccion : ${usuarioDirecciones.Direcciones}">
+                                    <td th:text="${direccion.Calle}"></td>
+                                    <td>
+                                        <a class="btn btn-warning btn-sm"
+                                            th:href="@{/Usuario/formEditable?IdUsuario=}+${usuarioDirecciones.Usuario.IdUsuario}+'&IdDireccion='+${direccion.IdDireccion}">Editar</a>
+                                        <a class="btn btn-danger btn-sm"
+                                            th:href="@{'/Usuario/DeleteDireccion/' + ${direccion.IdDireccion}}">Eliminar</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .form-container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-submit {
+            width: 100%;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn-submit:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</body>
+
+</html>

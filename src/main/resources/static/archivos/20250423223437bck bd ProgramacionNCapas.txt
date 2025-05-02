@@ -1,0 +1,1058 @@
+CREATE TABLE Usuario (
+    IdUsuario NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Nombre VARCHAR2(100),
+    ApellidoPaterno VARCHAR2(100),
+    ApellidoMaterno VARCHAR2(100),
+    Direccion VARCHAR2(100),
+    FNacimiento DATE,
+    NCelular VARCHAR2(10),
+    Estatura NUMBER(3,2)
+);
+
+-- Insersiones manuales a la BD Usuario
+INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, FNacimiento, NCelular, Estatura) VALUES ('Fenando Jair', 'Arce','Arellano','Calle Rio Lerma Mz26','30/05/2002','5540742014','1.70');
+INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, FNacimiento, NCelular, Estatura) VALUES ('Ivan', 'Guzman','Castillo','Real del Volcan','01/06/2002', '5578914123','1.65');
+INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, FNacimiento, NCelular, Estatura) VALUES ('Alvaro','Aguilar','Lopez','Av Revolucion Mz28','03/02/2001','5530661489','1.80');
+INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, FNacimiento, NCelular, Estatura) VALUES ('Ximena','Campos','Ramos','Av Libertad Numero 24','06/03/2001','5566694023','1.65');
+INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, FNacimiento, NCelular, Estatura) VALUES ('Valeria','Lozano','Ramirez','Av Texcoco de Mora N24','09/08/2001','5578912560','1.62');
+INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, FNacimiento, NCelular, Estatura) VALUES ('Ramon Alberto', 'Moreno','Garcia','Calle del volvan','05/05/2005','5540803014','1.80');
+INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, FNacimiento, NCelular, Estatura) VALUES ('Ivan', 'Lopez','Castillo','Real de las minas','24/05/2005', '5571264123','1.65');
+INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, FNacimiento, NCelular, Estatura) VALUES ('Cristian','Licona','Epigmeneo','Tecamac Nuevo pueblo','03/03/2003','5589546032','1.75');
+INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, FNacimiento, NCelular, Estatura) VALUES ('Judith','Banda','Nuñez','Av Libertad Colonia nueva','25/09/2002','5590242860','1.70');
+INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, FNacimiento, NCelular, Estatura) VALUES ('Mariana','Caudillo','Ramirez','Av Solidaridad Calle Leyes de Reforma','25/08/2004','5578912560','1.60');
+
+CREATE TABLE Rol(
+    IdRol NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Nombre VARCHAR2(50)
+);
+
+INSERT INTO Rol (Nombre) VALUES ('Usuario');
+INSERT INTO Rol (Nombre) VALUES ('Administrador');
+INSERT INTO Rol (Nombre) VALUES ('Comprador');
+INSERT INTO Rol (Nombre) VALUES ('Visitante');
+
+ALTER TABLE Usuario ADD IdRol NUMBER;
+ALTER TABLE Usuario ADD FOREIGN KEY (IdRol) REFERENCES Rol(IdRol);
+
+UPDATE Usuario SET IdRol=4 WHERE IdRol IS NULL;
+
+SELECT * FROM Usuario;
+
+DESCRIBE Usuario;
+
+SELECT IdRol, Nombre FROM Rol;
+
+SELECT IdUsuario, Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, FNacimiento, NCelular, Estatura FROM Usuario ORDER BY IdUsuario ASC;
+
+-- Seleccion de todos los datos con los nuevos cambios de ampliacion de Usuario
+SELECT IdUsuario, Nombre, ApellidoPaterno, ApellidoMaterno, Username, Email, Password, FNacimiento, Sexo, Telefono, NCelular, CURP FROM Usuario WHERE IdUsuario=1 ORDER BY IdUsuario ASC;
+
+-- INNER JOIN sin cambios en la base de datos
+SELECT Usuario.IdUsuario, Usuario.Nombre AS NombreUsuario, Usuario.ApellidoPaterno, Usuario.ApellidoMaterno, Usuario.Direccion,
+    Usuario.FNacimiento, Usuario.NCelular, Usuario.Estatura, Usuario.IdRol, Rol.Nombre AS NombreRol
+    FROM Usuario
+    INNER JOIN Rol ON Usuario.IdRol = Rol.IdRol;
+    
+-- INNER JOIN con cambios en la base de datos
+SELECT Usuario.IdUsuario, Usuario.Nombre AS NombreUsuario, Usuario.ApellidoPaterno, Usuario.ApellidoMaterno, Usuario.Username, 
+    Usuario.Email, Usuario.Password, Usuario.FNacimiento, Usuario.Sexo, Usuario.Telefono, Usuario.NCelular, Usuario.CURP, 
+    Usuario.IdRol, Rol.Nombre AS NombreRol 
+    FROM Usuario
+    INNER JOIN Rol ON Usuario.IdRol = Rol.IdRol;
+  
+-- Alteracion de la tabla Usuario con nuevos campos y modificaciones en las columnas
+-- Eliminar columnas
+ALTER TABLE Usuario DROP COLUMN Direccion;
+ALTER TABLE Usuario DROP COLUMN Estatura;
+-- Agregar las columnas nuevas
+-- UserName
+ALTER TABLE Usuario ADD (Username VARCHAR2(50) UNIQUE);
+UPDATE Usuario SET Username = 'User_' || IdUsuario WHERE Username IS NULL; -- Asigna un valor basado en la clave primaria
+ALTER TABLE Usuario MODIFY Username NOT NULL;
+-- Email
+ALTER TABLE Usuario ADD (Email VARCHAR2(254) UNIQUE);
+UPDATE Usuario SET Email = Nombre || ApellidoPaterno || 'correo_' || IdUsuario WHERE Email IS NULL;
+ALTER TABLE Usuario MODIFY Email NOT NULL;
+
+ALTER TABLE Usuario ADD (Password VARCHAR2(50) DEFAULT 'password' NOT NULL); -- Password
+ALTER TABLE Usuario ADD (Sexo CHAR(2) DEFAULT 'nn' NOT NULL); -- Sexo
+ALTER TABLE Usuario ADD (Telefono VARCHAR2(20) DEFAULT '55-55-55-55-55' NOT NULL); -- Telefono
+ALTER TABLE Usuario ADD (CURP VARCHAR(50) NULL);
+
+-- Alteraciones en los que se registraron en la tabla
+ALTER TABLE Usuario MODIFY Nombre VARCHAR2(50) NOT NULL;
+ALTER TABLE Usuario MODIFY ApellidoPaterno VARCHAR2 (50) NOT NULL;
+ALTER TABLE Usuario MODIFY ApellidoPaterno VARCHAR2 (50) NOT NULL;
+ALTER TABLE Usuario MODIFY FNacimiento NOT NULL;
+
+-- Procedimientos ALmacenados Stored Procedure
+-- Creacion de un nuevo procedimiento almacenado con un INNER JOIN
+CREATE OR REPLACE PROCEDURE UsuarioGetAll(
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN pCursor FOR
+    SELECT Usuario.IdUsuario, Usuario.Nombre AS NombreUsuario, Usuario.ApellidoPaterno, Usuario.ApellidoMaterno, Usuario.Direccion,
+    Usuario.FNacimiento, Usuario.NCelular, Usuario.Estatura, Usuario.IdRol, Rol.Nombre AS NombreRol
+    FROM Usuario
+    INNER JOIN Rol ON Usuario.IdRol = Rol.IdRol;
+END UsuarioGetAll;
+/
+VARIABLE pCursor REFCURSOR;
+EXEC UsuarioGetAll(:pCursor);
+PRINT pCursor;
+
+-- Creacion de un nuevo procedimiento almacenado con un INNER JOIN con WHERE
+CREATE OR REPLACE PROCEDURE UsuarioGetById(
+    pIdUsuario IN NUMBER,
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN pCursor FOR
+    SELECT Usuario.IdUsuario, Usuario.Nombre AS NombreUsuario, Usuario.ApellidoPaterno, 
+           Usuario.ApellidoMaterno, Usuario.Imagen ,Usuario.UserName, Usuario.Email, Usuario.Password,
+           Usuario.FNacimiento, Usuario.Sexo, Usuario.NCelular, Usuario.Telefono,
+           Usuario.CURP, Usuario.IdRol, Usuario.Status, Rol.Nombre AS NombreRol
+           
+    FROM Usuario
+    INNER JOIN Rol ON Usuario.IdRol = Rol.IdRol
+    WHERE Usuario.IdUsuario = pIdUsuario;
+END UsuarioGetById;
+//
+VARIABLE pCursor REFCURSOR;
+EXEC UsuarioGetById(1, :pCursor);
+PRINT pCursor;
+
+-- Creacion de un Procedimiento almacenado agregar
+CREATE OR REPLACE PROCEDURE UsuarioAdd (
+    pNombre IN VARCHAR2,
+    pApellidoPaterno IN VARCHAR2,
+    pApellidoMaterno IN VARCHAR2,
+    pDireccion IN VARCHAR2,
+    pFNacimiento IN DATE,
+    pNCelular IN VARCHAR2,
+    pEstatura IN NUMBER
+)
+AS
+BEGIN
+    INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, FNacimiento, NCelular, Estatura) 
+    VALUES (pNombre, pApellidoPaterno, pApellidoMaterno, pDireccion, pFNacimiento, pNCelular, pEstatura);
+END UsuarioAdd;
+
+-- Creacion de un Procedimiento almacenado actualizar
+CREATE OR REPLACE PROCEDURE UsuarioUpdate (
+    pIdUsuario IN NUMBER,
+    pNombre IN VARCHAR2,
+    pApellidoPaterno IN VARCHAR2,
+    pApellidoMaterno IN VARCHAR2,
+    pDireccion IN VARCHAR2,
+    pFNacimiento IN DATE,
+    pNCelular IN VARCHAR2,
+    pEstatura IN NUMBER
+)
+AS
+BEGIN
+    UPDATE Usuario
+    SET Nombre = pNombre,
+        ApellidoPaterno = pApellidoPaterno,
+        ApellidoMaterno = pApellidoMaterno,
+        Direccion = pDireccion,
+        FNacimiento = pFNacimiento,
+        NCelular = pNCelular,
+        Estatura = pEstatura
+    WHERE IdUsuario = pIdUsuario;
+    COMMIT;
+END UsuarioUpdate;
+
+-- Creacion de un Procedimiento almacenado Borrar
+CREATE OR REPLACE PROCEDURE UsuarioDelete (
+    p_IdUsuario IN NUMBER
+)
+AS
+BEGIN
+    DELETE FROM Usuario WHERE IdUsuario = p_IdUsuario;
+    
+    COMMIT;
+END UsuarioDelete;
+
+-- Creacion de un Procedimiento almacenado GetAll
+CREATE OR REPLACE PROCEDURE UsuarioGetAll (
+    p_cursor OUT SYS_REFCURSOR
+) AS
+BEGIN
+    OPEN p_cursor FOR
+    SELECT IdUsuario, Nombre, ApellidoPaterno, ApellidoMaterno, Direccion, 
+           TO_CHAR(FNacimiento, 'DD-MM-YYYY') AS FNacimiento, 
+           NCelular, Estatura
+    FROM Usuario
+    ORDER BY IdUsuario ASC;
+END UsuarioGetAll;
+
+-- Nuevo Procedimiento almacenado GetAllSP
+CREATE OR REPLACE PROCEDURE UsuarioGetAll(
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN pCursor FOR
+    SELECT Usuario.IdUsuario, Usuario.Nombre AS NombreUsuario, Usuario.ApellidoPaterno, Usuario.ApellidoMaterno, Usuario.Username, 
+    Usuario.Email, Usuario.Password, Usuario.FNacimiento, Usuario.Sexo, Usuario.Telefono, Usuario.NCelular, Usuario.CURP, 
+    Usuario.IdRol, Rol.Nombre AS NombreRol 
+    FROM Usuario
+    INNER JOIN Rol ON Usuario.IdRol = Rol.IdRol;
+END UsuarioGetAll;
+/**/
+VARIABLE pCursor REFCURSOR;
+EXEC UsuarioGetAll(:pCursor);
+PRINT pCursor;
+/**/
+-- Nuevo Procedimiento almacenado SearchByIdSP
+CREATE OR REPLACE PROCEDURE SearchById(
+    pIdUsuario IN NUMBER,
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN pCursor FOR
+    SELECT Usuario.IdUsuario, Usuario.Nombre AS NombreUsuario, Usuario.ApellidoPaterno, Usuario.ApellidoMaterno, Usuario.Username, 
+    Usuario.Email, Usuario.Password, Usuario.FNacimiento, Usuario.Sexo, Usuario.Telefono, Usuario.NCelular, Usuario.CURP, 
+    Usuario.IdRol, Rol.Nombre AS NombreRol 
+    FROM Usuario
+    INNER JOIN Rol ON Usuario.IdRol = Rol.IdRol
+    WHERE Usuario.IdUsuario = pIdUsuario;   
+END SearchById;
+/
+VARIABLE pCursor REFCURSOR;
+EXEC SearchById(2,:pCursor);
+PRINT pCursor;
+
+/* Distintas formas de insertar los datos de un procedimiento almacenado
+Varias instrucciones dentro del mismo */
+BEGIN
+    UsuarioAdd('Ramon','Moreno','Chavez','Hermosillo Sonora Mz24',TO_DATE('08-01-2003','DD-MM-YYYY'),'5548742030',2.00);
+END;
+
+EXEC UsuarioAdd('Arturo', 'Leal', 'Gomez', 'Hermosillo Sonora Mz30', TO_DATE('09-01-2003','DD-MM-YYYY'), '5548552030', 1.90);
+
+EXECUTE UsuarioAdd('Sebastian', 'Valenzuela', 'Flores', 'Hermosillo Sonora Mz12', TO_DATE('08-08-2003','DD-MM-YYYY'),'5584828690', 1.90);
+Call UsuarioAdd('Arturo','Leal','Gomez','Hermosillo Sonora Mz30',TO_DATE('09-01-2003','DD-MM-YYYY'),'5548552030',1.90);
+
+-- Nuevas tablas de direccion del dia 24/03/2025
+CREATE TABLE Pais(
+    IdPais NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Nombre VARCHAR(50) NOT NULL 
+);
+CREATE TABLE Estado(
+    IdEstado NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Nombre VARCHAR(50) NOT NULL,
+    IdPais NUMBER,
+    CONSTRAINT FK_IdPais FOREIGN KEY (IdPais)
+    REFERENCES Pais(IdPais)
+);
+CREATE TABLE Municipio(
+    IdMunicipio NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Nombre VARCHAR(50) NOT NULL,
+    IdEstado,
+    CONSTRAINT FK_IdEstado FOREIGN KEY (IdEstado)
+    REFERENCES Estado(IdEstado)
+);
+CREATE TABLE Colonia(
+    IdColonia NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Nombre VARCHAR(50) NOT NULL,
+    CodigoPostal VARCHAR(50) NOT NULL,
+    IdMunicipio,
+    CONSTRAINT FK_IdMunicipio FOREIGN KEY (IdMunicipio)
+    REFERENCES Municipio(IdMunicipio)
+);
+CREATE TABLE Direccion(
+    IdDireccion NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    Calle VARCHAR(50) NOT NULL,
+    NumeroInterior VARCHAR(20) NULL,
+    NumeroExterior VARCHAR(20) NOT NULL,
+    IdColonia,
+    IdUsuario,
+    CONSTRAINT FK_IdColonia FOREIGN KEY (IdColonia)
+    REFERENCES Colonia(IdColonia),
+    CONSTRAINT FK_IdUsuario FOREIGN KEY (IdUsuario)
+    REFERENCES Usuario(IdUsuario)
+);
+-- Insercion de datos en la Direccion (Pais)
+INSERT INTO Pais (Nombre) VALUES ('Mexico');
+INSERT INTO Pais (Nombre) VALUES ('Colombia');
+INSERT INTO Pais (Nombre) VALUES ('Brasil');
+-- Insercion de datos en la Direccion (Estado) Mexico
+INSERT INTO Estado (Nombre, IdPais) VALUES ('Mexico',1);
+INSERT INTO Estado (Nombre, IdPais) VALUES ('Sonora',1);
+INSERT INTO Estado (Nombre, IdPais) VALUES ('Guerrero',1);
+-- Insercion de datos en la Direccion (Estado) Colombia -> Departamentos
+INSERT INTO Estado (Nombre, IdPais) VALUES ('Bolívar',2);--24
+INSERT INTO Estado (Nombre, IdPais) VALUES ('Córdoba',2);--25
+INSERT INTO Estado (Nombre, IdPais) VALUES ('Valle del Cauca',2);--26
+-- Inserción de datos en la tabla Estado (Brasil)
+INSERT INTO Estado (Nombre, IdPais) VALUES ('São Paulo', 3);
+INSERT INTO Estado (Nombre, IdPais) VALUES ('Río de Janeiro', 3);
+INSERT INTO Estado (Nombre, IdPais) VALUES ('Minas Gerais', 3);
+-- Insercion de datos en la Direccion (Municipio) Mexico
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Chicoloapan',1);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Texcoco',1);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Hermosillo',2);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Guaymas',2);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Acatepec',3);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Cocula',3);
+-- Insercion de datos en la Direccion (Municipio) Colombia
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Achí',24);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Altos del Rosario',24);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Ayapel',25);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Canalete',25);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Cali',26);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Palmira',26);
+-- Inserción de datos en la tabla Municipio (Brasil)
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('São Paulo', 27);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Campinas', 27);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Río de Janeiro', 28);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Niterói', 28);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Belo Horizonte', 29);
+INSERT INTO Municipio (Nombre, IdEstado) VALUES ('Uberlândia', 29);
+-- Insercion de datos en la Direccion (Colonia) Mexico
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('San Vicente Chicoloapan de Juárez Centro','56370',1);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Revolución','56390',1);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Geovillas de Costitlán','56386',1);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Real de Costitlán I','56386',1);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('La Copalera','56386',1);
+--
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Texcoco de Mora Centro','56100',2);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Las Salinas','56106',2);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Joyas de San Mateo','56110',2);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Zaragoza-San Pablo','56110',2);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('El Retiro','56120',2);
+--
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Colonia Hermosillo Centro','83000',3);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Colonia 5 de Mayo','83010',3);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Colonia Country Club','83010',3);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Colonia Lomas Pitic','83010',3);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Colonia PEMEX','83013',3);
+--
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Heroica Guaymas Centro','85400',4);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('La Cantera','85405',4);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Yucatán','85406',4);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Adolfo de la Huerta','85410',4);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Campo de Tiro','85420',4);
+--
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Bugambilias','41410',5);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Filo de Arena','41422',5);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Lomadad','41422',5);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Curva el Llano','41423',5);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Llano Pericón','41423',5);
+--
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('La Plata','40580',6);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('San Bartolo El Alto','40580',6);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('San Bartolo El Bajo','40580',6);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Apango','40584',6);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Atzcala','40591',6);
+-- Insercion de datos en la Direccion (Colonia) Colombia
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Algarrobo','475008',21);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Boyacá','153610',21);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Buenavista','632040',21);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Buenos Aires','191001',21);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Centro Alegre','233057',21);
+
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Cardales','52835',22);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('El Rubio','110231',22);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('La Pacha','473008',22);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('San Isidro','051868',22);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('San Isidro - Pueblo Santo','110421',22);
+
+-- Inserción de datos en la tabla Colonia (Brasil)
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Jardins', '01401', 27);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Moema', '04509', 27);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Vila Madalena', '05439', 27);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Cambuí', '13025', 28);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Taquaral', '13076', 28);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Guanabara', '13073', 28);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Copacabana', '22060', 29);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Ipanema', '22410', 28);
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('Leblon', '22430', 29);
+
+INSERT INTO Colonia (Nombre, CodigoPostal, IdMunicipio) VALUES ('','',);
+
+-- Insercion de datos a las direcciones de los Usuarios ya ingresados en la BD 24-03-2025
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Rio Lerma','Mz26','Lote5',3,1);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Rio Jamapa','Mz30','Lote1',10,1);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Av Real del Volcan','Mz10','Lote24',4,2);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Av Libertad','20','30',5,3);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Av Texcocana','1','60',6,4);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Av Libertad','25','128°',7,5);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Rio Lerma','25','11',9,6);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Av Manzano','26','Sn',12,7);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Av Caborca','N30','Sn',26,8);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Av libertad','N26','26°',30,9);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Av Simpre viva','°2','°108',25,10);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Lote nuevo','Mz60','Lote20',22,11);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Av Chapultepec','Mz23','Lote65',24,12);
+INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior,IdColonia, IdUsuario) 
+VALUES ('Pitic Norte','03','30',14,16);
+-- Modificaciones 25/03/2025
+-- INNER JOIN con los datos nuevos de Rol, Direccion y datos del usuario // Mostrar Usuarios con almenos 1 Direccion
+SELECT u.IdUsuario, u.Nombre AS NombreUsuario, u.ApellidoPaterno, u.ApellidoMaterno,
+    u.Username, u.Email, u.Password, u.FNacimiento, u.Sexo, u.Telefono, 
+    u.NCelular, u.CURP, u.IdRol, r.Nombre AS NombreRol, c.Nombre AS NombreColonia,
+    m.Nombre AS NombreMunicipio, e.Nombre AS NombreEstado, p.Nombre AS NombrePais
+    FROM Usuario u
+    INNER JOIN Rol r ON u.IdRol = r.IdRol
+    INNER JOIN Direccion d ON u.IdUsuario = d.IdDireccion
+    INNER JOIN Colonia c ON d.IdColonia = c.IdColonia
+    INNER JOIN Municipio m ON c.IdMunicipio = m.IdMunicipio
+    INNER JOIN Estado e ON m.IdEstado = e.IdEstado
+    INNER JOIN Pais p ON e.IdPais = p.IdPais
+    ORDER BY IdUsuario ASC;
+-- INNER JOIN con los datos nuevos de Rol, Direccion y datos del usuario Mostrar todos los que tengan y no tengan direccion
+SELECT u.IdUsuario, u.Nombre AS NombreUsuario, u.ApellidoPaterno, u.ApellidoMaterno,
+    u.Username, u.Email, u.Password, u.FNacimiento, u.Sexo, u.Telefono, 
+    u.NCelular, u.CURP, u.IdRol, r.Nombre AS NombreRol, c.Nombre AS NombreColonia,
+    m.Nombre AS NombreMunicipio, e.Nombre AS NombreEstado, p.Nombre AS NombrePais
+    FROM Usuario u
+    INNER JOIN Rol r ON u.IdRol = r.IdRol
+    LEFT JOIN Direccion d ON u.IdUsuario = d.IdDireccion
+    LEFT JOIN Colonia c ON d.IdColonia = c.IdColonia
+    LEFT JOIN Municipio m ON c.IdMunicipio = m.IdMunicipio
+    LEFT JOIN Estado e ON m.IdEstado = e.IdEstado
+    LEFT JOIN Pais p ON e.IdPais = p.IdPais
+    ORDER BY IdUsuario ASC;
+-- INNER JOIN con los datos nuevos de Rol, Direccion y datos del usuario Mostrar todos los que no tengan direccion
+SELECT u.IdUsuario, u.Nombre AS NombreUsuario, u.ApellidoPaterno, u.ApellidoMaterno,
+    u.Username, u.Email, u.Password, u.FNacimiento, u.Sexo, u.Telefono, 
+    u.NCelular, u.CURP, u.IdRol, r.Nombre AS NombreRol
+    FROM Usuario u
+    INNER JOIN Rol r ON u.IdRol = r.IdRol
+    LEFT JOIN Direccion d ON u.IdUsuario = d.IdDireccion
+    WHERE d.IdDireccion IS NULL
+    ORDER BY IdUsuario ASC;
+    
+    
+CREATE OR REPLACE PROCEDURE UsuarioGetAll(pCursor OUT SYS_REFCURSOR)
+    AS
+    BEGIN
+    OPEN pCURSOR FOR
+    SELECT u.IdUsuario, u.Nombre AS NombreUsuario, u.ApellidoPaterno, u.ApellidoMaterno, u.Imagen,
+    u.Username, u.Email, u.Password, u.FNacimiento, u.Sexo, u.Telefono, 
+    u.NCelular, u.CURP, u.IdRol, r.Nombre AS NombreRol, d.IdDireccion, d.Calle, d.NumeroInterior, d.NumeroExterior,
+    c.IdColonia, c.Nombre AS NombreColonia, c.CodigoPostal, m.IdMunicipio, m.Nombre AS NombreMunicipio, 
+    e.IdEstado, e.Nombre AS NombreEstado, p.IdPais, p.Nombre AS NombrePais
+    FROM Usuario u
+    INNER JOIN Rol r ON u.IdRol = r.IdRol
+    LEFT JOIN Direccion d ON u.IdUsuario = d.IdUsuario
+    LEFT JOIN Colonia c ON d.IdColonia = c.IdColonia
+    LEFT JOIN Municipio m ON c.IdMunicipio = m.IdMunicipio
+    LEFT JOIN Estado e ON m.IdEstado = e.IdEstado
+    LEFT JOIN Pais p ON e.IdPais = p.IdPais
+    ORDER BY IdUsuario ASC;
+END UsuarioGetAll;
+//
+VARIABLE pCursor REFCURSOR;
+EXEC UsuarioGetAll(:pCursor);
+PRINT pCursor;
+//
+CREATE OR REPLACE PROCEDURE UsuarioDireccionAdd(
+    pNombre IN VARCHAR, 
+    pApellidoPaterno IN VARCHAR, 
+    pApellidoMaterno IN VARCHAR,
+    pImagen IN VARCHAR,
+    pFNacimiento IN DATE, 
+    pNCelular IN VARCHAR, 
+    pIdRol IN NUMBER, 
+    pCURP IN VARCHAR, 
+    pUserName IN VARCHAR, 
+    pEmail IN VARCHAR,
+    pPassword IN VARCHAR, 
+    pSexo IN CHAR, 
+    pTelefono IN VARCHAR, 
+    pCalle IN VARCHAR, 
+    pNumeroExterior IN VARCHAR, 
+    pNumeroInterior IN VARCHAR,
+    pIdColonia IN NUMBER,
+    pStatus IN NUMBER)
+AS
+    vIdUsuario NUMBER;
+BEGIN
+    -- Insertar en Usuario y obtener el IdUsuario generado
+    INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Imagen,FNacimiento, NCelular, IdRol, CURP,
+                         UserName, Email, Password, Sexo, Telefono, Status)
+    VALUES (pNombre, pApellidoPaterno, pApellidoMaterno, pImagen,pFNacimiento, pNCelular, pIdRol, pCURP,
+            pUserName, pEmail, pPassword, pSexo, pTelefono, pStatus)
+    RETURNING IdUsuario INTO vIdUsuario;
+
+    -- Insertar en Direccion usando el IdUsuario recién generado
+    INSERT INTO Direccion (Calle, NumeroExterior, NumeroInterior, IdColonia, IdUsuario)
+    VALUES (pCalle, pNumeroExterior, pNumeroInterior, pIdColonia, vIdUsuario);
+END UsuarioDireccionAdd;
+//
+EXEC UsuarioDireccionAdd('Vartolo','Roro','Lopez',TO_DATE('08-08-2008','dd-MM-yyyy'),'5540401209',1,'AEAF090909HMCRRRA1','Vartolo123','mi_correo@mail.com','Contrasena','m','5540808977');
+--
+BEGIN
+    UsuarioDireccionAdd(
+        'Ramon', 
+        'Valdez', 
+        'Valdez', 
+        TO_DATE('08-08-2002', 'DD-MM-YYYY'), 
+        '5540401209', 
+        1, 
+        'AEAF090909HMCRRRA1', 
+        'Vartolo54',
+        'valdez_correo@mail.com', 
+        'Contrasena', 
+        'M',
+        '5540808977', 
+        'Av siempre viva', 
+        '110', 
+        '115', 
+        10
+    );
+END;
+
+EXEC UsuarioDireccionAdd('Juan', 'Perez', 'Lopez', TO_DATE('1990-05-10', 'YYYY-MM-DD'), '1234567890', 1, 'CURP123456', 'juanperez', 'juan@example.com', 'pass123', 'M', '5544332211', 'Calle 123', '10', 'A', 5);
+
+
+CREATE OR REPLACE PROCEDURE DireccionesByIdUsuario(
+    pCursorUsuario OUT SYS_REFCURSOR,
+    pCursorDireccion OUT SYS_REFCURSOR,
+    pIdUsuario IN NUMBER
+)
+AS
+BEGIN
+    -- Cursor para obtener los datos del usuario
+    OPEN pCursorUsuario FOR
+        SELECT u.IdUsuario,
+               u.Nombre AS NombreUsuario, u.ApellidoPaterno, u.ApellidoMaterno,
+               u.UserName, u.Email, u.Password, u.FNacimiento, u.Sexo,
+               u.NCelular, u.Telefono, u.CURP,
+               u.IdRol, r.Nombre AS NombreRol
+        FROM Usuario u
+        INNER JOIN Rol r ON u.IdRol = r.IdRol
+        WHERE u.IdUsuario = pIdUsuario;
+
+    -- Cursor para obtener las direcciones del usuario
+    OPEN pCursorDireccion FOR
+        SELECT d.IdDireccion, d.Calle, d.NumeroInterior, d.NumeroExterior,
+               d.IdColonia, c.Nombre AS NombreColonia, c.IdMunicipio, c.CodigoPostal
+        FROM Direccion d
+        INNER JOIN Colonia c ON d.IdColonia = c.IdColonia
+        WHERE d.IdUsuario = pIdUsuario;
+END DireccionesByIdUsuario;
+
+CREATE OR REPLACE PROCEDURE RolGetAll(
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN pCursor FOR SELECT IdRol, Nombre FROM Rol;
+END RolGetAll;
+//
+-- DDL Cascada PaisGetAll
+CREATE OR REPLACE PROCEDURE PaisGetAll(
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN pCursor FOR SELECT IdPais, Nombre FROM Pais;
+END PaisGetAll;
+//
+VARIABLE pCursor REFCURSOR;
+EXEC PaisGetAll (:pCursor);
+PRINT pCursor;
+-- DDL Cascada EstadoGetAll
+CREATE OR REPLACE PROCEDURE EstadoGetAll(
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN pCursor FOR
+    SELECT IdEstado, Nombre FROM Estado ORDER BY IdEstado;
+END EstadoGetAll;
+//
+VARIABLE pCursor REFCURSOR;
+CALL EstadoGetAll(:pCursor);
+PRINT pCursor;
+-- DDL Cascada EstadoByIdPais
+CREATE OR REPLACE PROCEDURE EstadoByIdPais(
+    pIdPais IN NUMBER,
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN pCursor FOR
+        SELECT IdEstado, Nombre FROM Estado WHERE IdPais = pIdPais;
+END EstadoByIdPais;
+//
+VARIABLE pCursor REFCURSOR;
+EXEC EstadoByIdPais(1,:pCursor);
+PRINT pCursor;
+-- DDL Cascada MunicipioByIdEstado
+CREATE OR REPLACE PROCEDURE MunicipioByIdEstado(
+    pIdEstado IN NUMBER,
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN pCursor FOR 
+        SELECT IdMunicipio, Nombre FROM Municipio WHERE IdEstado = pIdEstado;
+END MunicipioByIdEstado;
+//
+VARIABLE pCursor REFCURSOR;
+EXEC MunicipioByIdEstado(1,:pCursor);
+PRINT pCursor;
+-- DDL Cascada ColoniaByIdMunicipio
+CREATE OR REPLACE PROCEDURE ColoniaByIdMunicipio(
+    pIdMunicipio IN NUMBER,
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN pCursor FOR
+        SELECT IdColonia, Nombre, CodigoPostal FROM Colonia WHERE IdMunicipio = pIdMunicipio;
+END ColoniaByIdMunicipio;
+//
+VARIABLE pCursor REFCURSOR;
+CALL ColoniaByIdMunicipio (1,:pCursor);
+PRINT pCursor;
+
+-- Nuevos Procedimientos almacenados
+-- Creacion de un Procedimiento almacenado actualizar usuario
+CREATE OR REPLACE PROCEDURE UsuarioUpdate (
+    pIdUsuario IN NUMBER, pNombre IN VARCHAR, pApellidoPaterno IN VARCHAR, pApellidoMaterno IN VARCHAR,
+    pImagen IN VARCHAR,
+    pUsername IN VARCHAR, pEmail IN VARCHAR, pPassword IN VARCHAR, pFNacimiento IN DATE,
+    pSexo CHAR, pNCelular IN VARCHAR, pTelefono IN VARCHAR2, pCURP IN VARCHAR, pIdRol IN NUMBER
+)
+AS
+BEGIN
+    UPDATE Usuario
+    SET Nombre = pNombre, ApellidoPaterno = pApellidoPaterno, ApellidoMaterno = pApellidoMaterno,
+        Imagen = pImagen,
+        Username = pUsername ,Email = pEmail, Password = pPassword, FNacimiento = pFNacimiento,
+        Sexo = pSexo, NCelular = pNCelular, Telefono = pTelefono, CURP = pCURP, IdRol = pIdRol
+    WHERE IdUsuario = pIdUsuario;
+END UsuarioUpdate;
+-- Alterar la tabla de Usuario para agregar una nueva columna para una imagen
+ALTER TABLE Usuario ADD Imagen CLOB;
+
+ALTER TABLE Usuario DROP COLUMN Imagen;
+ALTER TABLE Usuario ADD Status NUMBER;
+UPDATE Usuario SET Status = 1 WHERE Status IS NULL;
+-- Creacion de un Procedimiento almacenado actualizar direccion
+CREATE OR REPLACE PROCEDURE DireccionUpdateById(
+    pIdDireccion IN NUMBER, pCalle IN VARCHAR,
+    pNumeroInterior IN VARCHAR, pNumeroExterior IN VARCHAR,
+    pIdColonia IN NUMBER
+)
+AS
+BEGIN
+    UPDATE Direccion SET
+        Calle = pCalle, NumeroInterior = pNumeroInterior, NumeroExterior = pNumeroExterior, 
+        IdColonia = pIdColonia WHERE IdColonia = pIdColonia;
+END DireccionUpdateById;
+//
+CREATE OR REPLACE PROCEDURE DireccionById(
+    pIdDireccion IN NUMBER,
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+BEGIN
+    OPEN pCursor FOR
+        SELECT 
+            d.IdDireccion,
+            d.Calle,
+            d.NumeroExterior,
+            d.NumeroInterior,
+            c.IdColonia,
+            c.Nombre AS NombreColonia,
+            c.CodigoPostal,
+            m.IdMunicipio,
+            m.Nombre AS NombreMunicipio,
+            e.IdEstado,
+            e.Nombre AS NombreEstado,
+            p.IdPais,
+            p.Nombre AS NombrePais
+        FROM Direccion d
+        INNER JOIN Colonia c ON d.IdColonia = c.IdColonia
+        INNER JOIN Municipio m ON c.IdMunicipio = m.IdMunicipio
+        INNER JOIN Estado e ON m.IdEstado = e.IdEstado
+        INNER JOIN Pais p ON e.IdPais = p.IdPais
+        WHERE d.IdDireccion = pIdDireccion;
+END DireccionById;
+//
+CREATE OR REPLACE PROCEDURE DireccionAdd(
+    pIdUsuario IN NUMBER,
+    pCalle IN VARCHAR,
+    pNumeroInterior IN VARCHAR,
+    pNumeroExterior IN VARCHAR,
+    pIdColonia IN NUMBER
+)
+AS
+BEGIN
+    INSERT INTO Direccion (Calle, NumeroInterior, NumeroExterior, IdColonia, IdUsuario)
+    VALUES (pCalle, pNumeroInterior, pNumeroExterior, pIdColonia, pIdUsuario);
+END DireccionAdd;
+//
+CREATE OR REPLACE PROCEDURE UsuarioUpdateStatus(
+    pIdUsuario IN NUMBER,
+    pStatus IN NUMBER
+)
+AS
+BEGIN
+    UPDATE Usuario SET Status = pStatus WHERE IdUsuario = pIdUsuario;
+END UsuarioUpdateStatus;
+//
+-- Procedimiento Dinamito Nombre
+CREATE OR REPLACE PROCEDURE GetAllDinamicoNombre(
+    pNombre IN VARCHAR,
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+    SqlQuery VARCHAR(4000);
+BEGIN
+    SqlQuery := 'SELECT Usuario.IdUsuario, Usuario.Nombre AS NombreUsuario, Usuario.ApellidoPaterno, Usuario.ApellidoMaterno,
+    Usuario.IdRol, Rol.Nombre AS NombreRol, Direccion.IdDireccion, Direccion.Calle, Direccion.NumeroInterior, Direccion.NumeroExterior,
+    Direccion.IdColonia, Colonia.Nombre AS NombreColonia, Colonia.CodigoPostal, Colonia.IdMunicipio, Municipio.Nombre AS NombreMunicipio,
+    Municipio.IdEstado, Estado.Nombre AS NombreEstado, Pais.IdPais, Pais.Nombre AS NombrePais
+    FROM Usuario INNER JOIN Rol ON Usuario.IdRol = Rol.IdRol
+    LEFT JOIN Direccion ON Usuario.IdUsuario = Direccion.IdUsuario
+    LEFT JOIN Colonia ON Direccion.IdColonia = Colonia.IdColonia
+    LEFT JOIN Municipio ON Colonia.IdMunicipio = Municipio.IdMunicipio
+    LEFT JOIN Estado ON Municipio.IdEstado = Estado.IdEstado
+    LEFT JOIN Pais ON Estado.IdPais = Pais.IdPais';
+    
+    SqlQuery := SqlQuery || ' WHERE LOWER(Usuario.Nombre) LIKE LOWER(''%'' || :nombre || ''%'')';
+    SqlQuery := SqlQuery || ' ORDER BY IdUsuario';
+    OPEN pCursor FOR SqlQuery USING NVL(pNombre,'');
+
+END GetAllDinamicoNombre;
+//
+VARIABLE pCursor REFCURSOR;
+CALL GetAllDinamicoNombre ('e',:pCursor);
+PRINT pCursor;
+-- Procedimiento Dinamito Nombre y ApellidoPaterno
+CREATE OR REPLACE PROCEDURE GetAllDinamicoNombreApellidoPaterno(
+    pNombre IN VARCHAR,
+    pApellidoPaterno IN VARCHAR,
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+    SqlQuery VARCHAR(4000);
+BEGIN
+    SqlQuery := 'SELECT Usuario.IdUsuario, Usuario.Nombre AS NombreUsuario, Usuario.ApellidoPaterno, Usuario.ApellidoMaterno,
+    Usuario.IdRol, Rol.Nombre AS NombreRol, Direccion.IdDireccion, Direccion.Calle, Direccion.NumeroInterior, Direccion.NumeroExterior,
+    Direccion.IdColonia, Colonia.Nombre AS NombreColonia, Colonia.CodigoPostal, Colonia.IdMunicipio, Municipio.Nombre AS NombreMunicipio,
+    Municipio.IdEstado, Estado.Nombre AS NombreEstado, Pais.IdPais, Pais.Nombre AS NombrePais
+    FROM Usuario INNER JOIN Rol ON Usuario.IdRol = Rol.IdRol
+    LEFT JOIN Direccion ON Usuario.IdUsuario = Direccion.IdUsuario
+    LEFT JOIN Colonia ON Direccion.IdColonia = Colonia.IdColonia
+    LEFT JOIN Municipio ON Colonia.IdMunicipio = Municipio.IdMunicipio
+    LEFT JOIN Estado ON Municipio.IdEstado = Estado.IdEstado
+    LEFT JOIN Pais ON Estado.IdPais = Pais.IdPais';
+    
+    SqlQuery := SqlQuery || ' WHERE LOWER(Usuario.Nombre) LIKE LOWER(''%'' || :nombre || ''%'')';
+    SqlQuery := SqlQuery || ' AND LOWER(Usuario.ApellidoPaterno) LIKE LOWER(''%'' || :apellidopaterno || ''%'')';
+
+    SqlQuery := SqlQuery || ' ORDER BY IdUsuario';
+    OPEN pCursor FOR SqlQuery USING NVL(pNombre,''),NVL(pApellidoPaterno,'');
+
+END GetAllDinamicoNombreApellidoPaterno;
+//
+VARIABLE pCursor REFCURSOR;
+CALL GetAllDinamicoNombreApellidoPaterno ('e','a',:pCursor);
+PRINT pCursor;
+-- Procedimiento Dinamito Nombre, ApellidoPaterno y ApellidoMaterno
+CREATE OR REPLACE PROCEDURE GetAllDinamicoNombreApellidoPaternoMaterno(
+    pNombre IN VARCHAR,
+    pApellidoPaterno IN VARCHAR,
+    pApellidoMaterno IN VARCHAR,
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+    SqlQuery VARCHAR(4000);
+BEGIN
+    SqlQuery := 'SELECT Usuario.IdUsuario, Usuario.Nombre AS NombreUsuario, Usuario.ApellidoPaterno, Usuario.ApellidoMaterno,
+    Usuario.IdRol, Rol.Nombre AS NombreRol, Direccion.IdDireccion, Direccion.Calle, Direccion.NumeroInterior, Direccion.NumeroExterior,
+    Direccion.IdColonia, Colonia.Nombre AS NombreColonia, Colonia.CodigoPostal, Colonia.IdMunicipio, Municipio.Nombre AS NombreMunicipio,
+    Municipio.IdEstado, Estado.Nombre AS NombreEstado, Pais.IdPais, Pais.Nombre AS NombrePais
+    FROM Usuario INNER JOIN Rol ON Usuario.IdRol = Rol.IdRol
+    LEFT JOIN Direccion ON Usuario.IdUsuario = Direccion.IdUsuario
+    LEFT JOIN Colonia ON Direccion.IdColonia = Colonia.IdColonia
+    LEFT JOIN Municipio ON Colonia.IdMunicipio = Municipio.IdMunicipio
+    LEFT JOIN Estado ON Municipio.IdEstado = Estado.IdEstado
+    LEFT JOIN Pais ON Estado.IdPais = Pais.IdPais';
+    
+    SqlQuery := SqlQuery || ' WHERE LOWER(Usuario.Nombre) LIKE LOWER(''%'' || :nombre || ''%'')';
+    SqlQuery := SqlQuery || ' AND LOWER(Usuario.ApellidoPaterno) LIKE LOWER(''%'' || :apellidopaterno || ''%'')';
+    SqlQuery := SqlQuery || ' AND LOWER(Usuario.ApellidoMaterno) LIKE LOWER(''%'' || :apellidomaterno || ''%'')';
+
+    SqlQuery := SqlQuery || ' ORDER BY IdUsuario';
+    OPEN pCursor FOR SqlQuery USING NVL(pNombre,''),NVL(pApellidoPaterno,''),NVL(pApellidoMaterno,'');
+
+END GetAllDinamicoNombreApellidoPaternoMaterno;
+//
+VARIABLE pCursor REFCURSOR;
+CALL GetAllDinamicoNombreApellidoPaternoMaterno ('e','a','a',:pCursor);
+PRINT pCursor;
+-- Procedimiento Dinamito Nombre, ApellidoPaterno, ApellidoMaterno y IdRol
+CREATE OR REPLACE PROCEDURE GetAllDinamicoNombreApellidoPaternoMaternoIdRol(
+    pNombre IN VARCHAR,
+    pApellidoPaterno IN VARCHAR,
+    pApellidoMaterno IN VARCHAR,
+    pIdRol IN NUMBER,
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+    SqlQuery VARCHAR(4000);
+BEGIN
+    SqlQuery := 'SELECT Usuario.IdUsuario, Usuario.Nombre AS NombreUsuario, Usuario.ApellidoPaterno, Usuario.ApellidoMaterno,
+    Usuario.IdRol, Rol.Nombre AS NombreRol, Direccion.IdDireccion, Direccion.Calle, Direccion.NumeroInterior, Direccion.NumeroExterior,
+    Direccion.IdColonia, Colonia.Nombre AS NombreColonia, Colonia.CodigoPostal, Colonia.IdMunicipio, Municipio.Nombre AS NombreMunicipio,
+    Municipio.IdEstado, Estado.Nombre AS NombreEstado, Pais.IdPais, Pais.Nombre AS NombrePais
+    FROM Usuario INNER JOIN Rol ON Usuario.IdRol = Rol.IdRol
+    LEFT JOIN Direccion ON Usuario.IdUsuario = Direccion.IdUsuario
+    LEFT JOIN Colonia ON Direccion.IdColonia = Colonia.IdColonia
+    LEFT JOIN Municipio ON Colonia.IdMunicipio = Municipio.IdMunicipio
+    LEFT JOIN Estado ON Municipio.IdEstado = Estado.IdEstado
+    LEFT JOIN Pais ON Estado.IdPais = Pais.IdPais';
+    SqlQuery := SqlQuery || ' WHERE LOWER(Usuario.Nombre) LIKE LOWER(''%'' || :nombre || ''%'')';
+    SqlQuery := SqlQuery || ' AND LOWER(Usuario.ApellidoPaterno) LIKE LOWER(''%'' || :apellidopaterno || ''%'')';
+    SqlQuery := SqlQuery || ' AND LOWER(Usuario.ApellidoMaterno) LIKE LOWER(''%'' || :apellidomaterno || ''%'')';
+    IF pIdRol != 0 THEN
+        --        SqlQuery := SqlQuery || ' AND Usuario.IdRol = NVL (:pIdRol, Usuario.IdRol)';
+        SqlQuery := SqlQuery || ' AND Usuario.IdRol = :pIdRol';
+    END IF;
+    SqlQuery := SqlQuery || ' ORDER BY IdUsuario';
+    IF pIdRol != 0 THEN
+        OPEN pCursor FOR SqlQuery USING NVL(pNombre,''), NVL(pApellidoPaterno,''), NVL(pApellidoMaterno,''), pIdRol;
+    ELSE
+        --Imprimir mensaje de error
+        OPEN pCursor FOR SqlQuery USING NVL(pNombre,''), NVL(pApellidoPaterno,''), NVL(pApellidoMaterno,'');
+    END IF;
+END GetAllDinamicoNombreApellidoPaternoMaternoIdRol;
+//
+VARIABLE pCursor REFCURSOR;
+CALL GetAllDinamicoNombreApellidoPaternoMaternoIdRol ('e','a','a',2,:pCursor);
+PRINT pCursor;
+//
+-- Creacion de una vista para Usuario dinamico con nombre apellidos y rol
+CREATE OR REPLACE VIEW UsuarioGetAllDinico
+AS
+    SELECT u.IdUsuario, u.Nombre AS NombreUsuario, u.ApellidoPaterno, u.ApellidoMaterno, u.Imagen,
+    u.Username, u.Email, u.Password, u.FNacimiento, u.Sexo, u.Telefono, 
+    u.NCelular, u.CURP, u.IdRol, r.Nombre AS NombreRol, d.IdDireccion, d.Calle, d.NumeroInterior, d.NumeroExterior,
+    c.IdColonia, c.Nombre AS NombreColonia, c.CodigoPostal, m.IdMunicipio, m.Nombre AS NombreMunicipio, 
+    e.IdEstado, e.Nombre AS NombreEstado, p.IdPais, p.Nombre AS NombrePais
+    FROM Usuario u
+    INNER JOIN Rol r ON u.IdRol = r.IdRol
+    LEFT JOIN Direccion d ON u.IdUsuario = d.IdUsuario
+    LEFT JOIN Colonia c ON d.IdColonia = c.IdColonia
+    LEFT JOIN Municipio m ON c.IdMunicipio = m.IdMunicipio
+    LEFT JOIN Estado e ON m.IdEstado = e.IdEstado
+    LEFT JOIN Pais p ON e.IdPais = p.IdPais
+    ORDER BY IdUsuario;
+-- Creacion de procedimiento almacenado que consume vista para Usuario dinamico con nombre apellidos y rol    
+CREATE OR REPLACE PROCEDURE GetAllDinamicoDesdeVistaUsuario(
+    pNombre IN VARCHAR,
+    pApellidoPaterno IN VARCHAR,
+    pApellidoMaterno IN VARCHAR,
+    pIdRol IN NUMBER,
+    pCursor OUT SYS_REFCURSOR
+)
+AS
+    SqlQuery VARCHAR(4000);
+BEGIN
+    SqlQuery := 'SELECT * FROM UsuarioGetAllDinico';
+    SqlQuery := SqlQuery || ' WHERE LOWER(NombreUsuario) LIKE LOWER(''%'' || :nombre || ''%'')';
+    SqlQuery := SqlQuery || ' AND LOWER(ApellidoPaterno) LIKE LOWER(''%'' || :apellidopaterno || ''%'')';
+    SqlQuery := SqlQuery || ' AND LOWER(ApellidoMaterno) LIKE LOWER(''%'' || :apellidomaterno || ''%'')';
+    IF pIdRol != 0 THEN
+        SqlQuery := SqlQuery || ' AND IdRol = :pIdRol';
+    END IF;
+    IF pIdRol != 0 THEN
+        OPEN pCursor FOR SqlQuery USING NVL(pNombre,''), NVL(pApellidoPaterno,''), NVL(pApellidoMaterno,''), pIdRol;
+    ELSE
+        OPEN pCursor FOR SqlQuery USING NVL(pNombre,''), NVL(pApellidoPaterno,''), NVL(pApellidoMaterno,'');
+    END IF;
+END GetAllDinamicoDesdeVistaUsuario;
+//
+VARIABLE pCursor REFCURSOR;
+CALL GetAllDinamicoDesdeVistaUsuario ('','','',2,:pCursor);
+PRINT pCursor;
+-- Trigger Verificar nombre
+CREATE OR REPLACE TRIGGER VerificacionNombre
+BEFORE INSERT ON Usuario
+FOR EACH ROW
+DECLARE
+    nombreExistente VARCHAR(50);
+BEGIN
+    SELECT Nombre INTO nombreExistente FROM Usuario WHERE Nombre = :NEW.Nombre AND ROWNUM = 1;
+    DBMS_OUTPUT.PUT_LINE('Ya existe un usuario con ese nombre : ' || nombreExistente);
+END VerificacionNombre;
+-- ~Flujo trigger CURP~
+ALTER TABLE Estado ADD Clave VARCHAR(5);
+UPDATE Estado SET Clave='MC' WHERE IdEstado = 1;
+UPDATE Estado SET Clave='SR' WHERE IdEstado = 2;
+UPDATE Estado SET Clave='GR' WHERE IdEstado = 3;
+UPDATE Estado SET Clave='BOL' WHERE IdEstado = 24;
+UPDATE Estado SET Clave='COR' WHERE IdEstado = 25;
+UPDATE Estado SET Clave='VAC' WHERE IdEstado = 26;
+UPDATE Estado SET Clave='SP' WHERE IdEstado = 27;
+UPDATE Estado SET Clave='RJ' WHERE IdEstado = 28;
+UPDATE Estado SET Clave='MG' WHERE IdEstado = 29;
+-- Trigger CURP automatico despues de ingresar un nuevo usuario
+CREATE OR REPLACE TRIGGER GenerarCURP
+BEFORE INSERT ON Usuario
+FOR EACH ROW
+DECLARE
+    vCURP VARCHAR2(18);
+    vInicialPaterno CHAR(1);
+    vVocalPaterno CHAR(1);
+    vInicialMaterno CHAR(1);
+    vInicialNombre CHAR(1);
+    vAnio CHAR(2);
+    vMes CHAR(2);
+    vDia CHAR(2);
+    vConsPaterno CHAR(1);
+    vConsMaterno CHAR(1);
+    vConsNombre CHAR(1);
+    vNombreLimpio VARCHAR2(50);
+BEGIN
+    IF (:NEW.CURP IS NULL) THEN
+        -- Inicial del apellido paterno
+        vInicialPaterno := SUBSTR(UPPER(:NEW.ApellidoPaterno), 1, 1);
+        
+        -- Vocal interna del apellido paterno
+        vVocalPaterno := REGEXP_SUBSTR(UPPER(:NEW.ApellidoPaterno), '[AEIOU]', 2, 1);
+        IF vVocalPaterno IS NULL THEN
+            vVocalPaterno := 'X';
+        END IF;
+
+        -- Inicial del apellido materno
+        IF :NEW.ApellidoMaterno IS NULL THEN
+            vInicialMaterno := 'X';
+        ELSE
+            vInicialMaterno := SUBSTR(UPPER(:NEW.ApellidoMaterno), 1, 1);
+        END IF;
+
+        -- Limpiar nombre si empieza con JOSE o MARIA
+        vNombreLimpio := UPPER(:NEW.Nombre);
+        IF vNombreLimpio LIKE 'JOSE %' THEN
+            vNombreLimpio := SUBSTR(vNombreLimpio, INSTR(vNombreLimpio, ' ') + 1);
+        ELSIF vNombreLimpio LIKE 'MARIA %' THEN
+            vNombreLimpio := SUBSTR(vNombreLimpio, INSTR(vNombreLimpio, ' ') + 1);
+        END IF;
+
+        -- Inicial del nombre (ya limpio)
+        vInicialNombre := SUBSTR(vNombreLimpio, 1, 1);
+
+        -- Fecha de nacimiento
+        vAnio := TO_CHAR(:NEW.FNacimiento, 'YY');
+        vMes := TO_CHAR(:NEW.FNacimiento, 'MM');
+        vDia := TO_CHAR(:NEW.FNacimiento, 'DD');
+
+        -- Consonantes internas
+        vConsPaterno := REGEXP_SUBSTR(UPPER(:NEW.ApellidoPaterno), '[BCDFGHJKLMNPQRSTVWXYZ]', 2, 1);
+        vConsMaterno := REGEXP_SUBSTR(UPPER(:NEW.ApellidoMaterno), '[BCDFGHJKLMNPQRSTVWXYZ]', 2, 1);
+        vConsNombre := REGEXP_SUBSTR(UPPER(vNombreLimpio), '[BCDFGHJKLMNPQRSTVWXYZ]', 2, 1);
+
+        IF vConsPaterno IS NULL THEN vConsPaterno := 'X'; END IF;
+        IF vConsMaterno IS NULL THEN vConsMaterno := 'X'; END IF;
+        IF vConsNombre IS NULL THEN vConsNombre := 'X'; END IF;
+
+        -- Ensamblar CURP
+        vCURP := vInicialPaterno || vVocalPaterno || vInicialMaterno || vInicialNombre ||
+                 vAnio || vMes || vDia ||
+                 UPPER(:NEW.Sexo) ||
+                 'XX' || -- Entidad ignorada
+                 vConsPaterno || vConsMaterno || vConsNombre || '00';
+
+        :NEW.CURP := vCURP;
+        DBMS_OUTPUT.PUT_LINE('CURP Generada: ' || vCURP);
+    END IF;
+END GenerarCURP;
+
+SET SERVEROUTPUT ON;
+
+INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Sexo, FNacimiento, Username, Email, Password, Telefono)
+VALUES ('Fernando Jair','Arce', 'Arellano', 'H', TO_DATE('2002-05-30','yyyy-MM-dd'), 'FAUser', 'correo.famail@example.com', 'null', '55-55-55-55-55');
+
+
+
+create or replace PROCEDURE UsuarioDireccionAdd(
+    pNombre IN VARCHAR, 
+    pApellidoPaterno IN VARCHAR, 
+    pApellidoMaterno IN VARCHAR,
+    pImagen IN VARCHAR,
+    pFNacimiento IN DATE, 
+    pNCelular IN VARCHAR, 
+    pIdRol IN NUMBER, 
+    pCURP IN VARCHAR, 
+    pUserName IN VARCHAR, 
+    pEmail IN VARCHAR,
+    pPassword IN VARCHAR, 
+    pSexo IN CHAR, 
+    pTelefono IN VARCHAR, 
+    pCalle IN VARCHAR, 
+    pNumeroExterior IN VARCHAR,
+    pNumeroInterior IN VARCHAR,
+    pIdColonia IN NUMBER,
+    pStatus IN NUMBER)
+AS
+    vIdUsuario NUMBER;
+BEGIN
+    -- Insertar en Usuario y obtener el IdUsuario generado
+    INSERT INTO Usuario (Nombre, ApellidoPaterno, ApellidoMaterno, Imagen,FNacimiento, NCelular, IdRol, CURP,
+                         UserName, Email, Password, Sexo, Telefono, Status)
+    VALUES (pNombre, pApellidoPaterno, pApellidoMaterno, pImagen,pFNacimiento, pNCelular, pIdRol, pCURP,
+            pUserName, pEmail, pPassword, pSexo, pTelefono, pStatus)
+    RETURNING IdUsuario INTO vIdUsuario;
+
+    -- Insertar en Direccion usando el IdUsuario recién generado
+    INSERT INTO Direccion (Calle, NumeroExterior, NumeroInterior, IdColonia, IdUsuario)
+    VALUES (pCalle, pNumeroExterior, pNumeroInterior, pIdColonia, vIdUsuario);
+    
+    COMMIT;
+    
+END UsuarioDireccionAdd;
+//
+
+BEGIN
+    UsuarioDireccionAdd(
+        'Grabriel Jaffet', 
+        'Juarez', 
+        'Arellano',
+        NULL,
+        TO_DATE('2003-06-03', 'YYYY-MM-DD'),
+        '5574849520',
+        1,
+        'GAEF030620HMDQQQA0',
+        'GabJJuarez',
+        'gjuarez@gmail.com',
+        'PassJuarez01',
+        'H',
+        '5553216789',
+        'Calle 1',
+        '99',
+        '1A',
+        10,
+        1
+    );
+END;
+
+Borrar triggers y terminar validacciones error front end
