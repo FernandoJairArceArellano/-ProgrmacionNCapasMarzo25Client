@@ -15,16 +15,17 @@ import jakarta.validation.Valid;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -53,19 +54,29 @@ public class UsuarioController {
 
         RestTemplate restTemplate = new RestTemplate();
 
-                ResponseEntity<Result<UsuarioDireccion>> responseEntity = restTemplate.exchange("http://localhost:8081/alumnoapi", 
-                HttpMethod.GET, 
-                HttpEntity.EMPTY, 
-                new ParameterizedTypeReference<Result<UsuarioDireccion>>(){});
-        
+        ResponseEntity<Result<UsuarioDireccion>> responseEntity = restTemplate.exchange("http://localhost:8081/demoapi",
+                HttpMethod.GET,
+                HttpEntity.EMPTY,
+                new ParameterizedTypeReference<Result<UsuarioDireccion>>() {
+        });
         Result response = responseEntity.getBody();
 
+        ResponseEntity<Result<Rol>> responseRolEntity = restTemplate.exchange(
+                "http://localhost:8081/demoapi/rolapi",
+                HttpMethod.GET,
+                HttpEntity.EMPTY,
+                new ParameterizedTypeReference<Result<Rol>>() {
+        }
+        );
+        Result<Rol> resultRol = responseRolEntity.getBody();
+
+        // Filtros de busqueda
         Usuario usuarioBusqueda = new Usuario();
         usuarioBusqueda.Rol = new Rol();
 
         model.addAttribute("usuarioBusqueda", usuarioBusqueda);
         //model.addAttribute("roles", resultRol.object);
-        //model.addAttribute("roles", resultRol.objects);
+        model.addAttribute("roles", resultRol.objects);
         model.addAttribute("listaUsuarios", response.objects);
 
         return "UsuarioIndex";
