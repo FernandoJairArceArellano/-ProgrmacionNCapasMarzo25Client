@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.Date;
+import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 
 public class Usuario {
@@ -41,6 +42,8 @@ public class Usuario {
     private String Imagen;
 
     public Rol Rol; // Propiedades de Navegacion a Rol
+
+    private List<Direccion> Direcciones;
 
     public int getIdUsuario() {
         return IdUsuario;
@@ -160,6 +163,14 @@ public class Usuario {
 
     public void setImagen(String Imagen) {
         this.Imagen = Imagen;
+    }
+
+    public List<Direccion> getDirecciones() {
+        return Direcciones;
+    }
+
+    public void setDirecciones(List<Direccion> Direcciones) {
+        this.Direcciones = Direcciones;
     }
 
 }

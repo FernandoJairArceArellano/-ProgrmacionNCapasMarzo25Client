@@ -54,7 +54,8 @@ public class UsuarioController {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        ResponseEntity<Result<UsuarioDireccion>> responseEntity = restTemplate.exchange("http://localhost:8081/demoapi",
+        ResponseEntity<Result<UsuarioDireccion>> responseEntity = restTemplate.exchange(
+                "http://localhost:8081/demoapi",
                 HttpMethod.GET,
                 HttpEntity.EMPTY,
                 new ParameterizedTypeReference<Result<UsuarioDireccion>>() {
@@ -82,7 +83,7 @@ public class UsuarioController {
         return "UsuarioIndex";
     }
 
-    /*@GetMapping("Form/{IdUsuario}")
+    @GetMapping("Form/{IdUsuario}")
     public String Form(@PathVariable int IdUsuario, Model model) {
         if (IdUsuario == 0) { //Agregar
             UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
@@ -95,22 +96,59 @@ public class UsuarioController {
             usuarioDireccion.Direccion.Colonia.Municipio.Estado = new Estado();
             usuarioDireccion.Direccion.Colonia.Municipio.Estado.Pais = new Pais();
 
-            //model.addAttribute("roles", RolDAOImplementation.GetAll().object);
-            model.addAttribute("roles", RolDAOImplementation.GetAllJPA().objects);
+            RestTemplate restTemplate = new RestTemplate();
+
+            // Obtener roles
+            ResponseEntity<Result<Rol>> responseRolEntity = restTemplate.exchange(
+                    "http://localhost:8081/demoapi/rolapi",
+                    HttpMethod.GET,
+                    HttpEntity.EMPTY,
+                    new ParameterizedTypeReference<Result<Rol>>() {
+            });
+            Result<Rol> resultRol = responseRolEntity.getBody();
+
+            model.addAttribute("roles", resultRol.objects);
             model.addAttribute("usuarioDireccion", usuarioDireccion);
-            //model.addAttribute("paises", PaisDAOImplementation.GetAll().correct ? PaisDAOImplementation.GetAll().objects : null);
-            model.addAttribute("paises", PaisDAOImplementation.GetAllJPA().correct ? PaisDAOImplementation.GetAllJPA().objects : null);
+
+            // Obtener paises
+            ResponseEntity<Result<Pais>> responsePaisEntity = restTemplate.exchange(
+                    "http://localhost:8081/demoapi/Pais",
+                    HttpMethod.GET,
+                    HttpEntity.EMPTY,
+                    new ParameterizedTypeReference<Result<Pais>>() {
+            });
+            Result<Pais> resultPais = responsePaisEntity.getBody();
+
+            model.addAttribute("paises", resultPais.correct ? resultPais.objects : null);
             return "UsuarioForm";
         } else { // Edicion
             System.out.println("Voy a editar");
-            //Result result = usuarioDAOImplementation.direccionesByIdUsuario(IdUsuario);
-            Result result = usuarioDAOImplementation.DireccionesByIdUsuarioJPA(IdUsuario);
-            model.addAttribute("usuarioDirecciones", result.object);
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            // Obtener usuario por Id
+            ResponseEntity<UsuarioDireccion> responseUsuarioDatos = restTemplate.exchange(
+                    "http://localhost:8081/demoapi/Usuario/GetById/{id}",
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<UsuarioDireccion>() {
+            },
+                    IdUsuario
+            );
+
+            UsuarioDireccion usuarioDireccion = responseUsuarioDatos.getBody();
+
+            if (usuarioDireccion != null && usuarioDireccion.Usuario != null) {
+                usuarioDireccion.Direcciones = usuarioDireccion.Usuario.getDirecciones();
+            }
+
+            model.addAttribute("usuarioDirecciones", usuarioDireccion);
+
             return "UsuarioDetail";
         }
     }
 
-    @GetMapping("Delete/{IdUsuario}")
+    /*@GetMapping("Delete/{IdUsuario}")
     public String deleteUsuario(@PathVariable int IdUsuario, Model model) {
         Result result = usuarioDAOImplementation.DeleteJPA(IdUsuario);
 
