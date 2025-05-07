@@ -18,7 +18,8 @@
 
                 <div class="row g-3"
                     th:if="${(usuarioDireccion.Usuario.IdUsuario == 0 && usuarioDireccion.Direccion.IdDireccion == 0)
-                         || (usuarioDireccion.Usuario.IdUsuario != 0 && usuarioDireccion.Direccion.IdDireccion == -1)}">
+                         || (usuarioDireccion.Usuario.IdUsuario != 0 && usuarioDireccion.Direccion.IdDireccion == -1)}"> 
+                    <!--&& usuarioDireccion.Direccion.IdDireccion == -1 pendiente de validar la direccion-->
                     <h5 class="mb-3">Datos del Usuario</h5>
 
                     <div class="col-md-8">
@@ -494,21 +495,21 @@
 
         $(document).ready(function () {
             if (idColoniaActual > 0) {
-                $.get("/Usuario/EstadoByIdPais/" + idPaisActual, function (estados) {
+                $.get("http://localhost:8081/estadoapi/v1/byidpais/" + idPaisActual, function (estados) {
                     $("#estadoddl").empty().append('<option value="0">Selecciona un Estado</option>');
                     $.each(estados.objects, function (i, estado) {
                         const selected = estado.idEstado === idEstadoActual ? 'selected' : '';
                         $("#estadoddl").append(`<option value="${estado.idEstado}" ${selected}>${estado.nombre}</option>`);
                     });
 
-                    $.get("/Usuario/MunicipioByIdEstado/" + idEstadoActual, function (municipios) {
+                    $.get("http://localhost:8081/municipioapi/v1/byidestado/" + idEstadoActual, function (municipios) {
                         $("#municipioddl").empty().append('<option value="0">Selecciona un Municipio</option>');
                         $.each(municipios.objects, function (i, municipio) {
                             const selected = municipio.idMunicipio === idMunicipioActual ? 'selected' : '';
                             $("#municipioddl").append(`<option value="${municipio.idMunicipio}" ${selected}>${municipio.nombre}</option>`);
                         });
 
-                        $.get("/Usuario/ColoniaByIdMunicipio/" + idMunicipioActual, function (colonias) {
+                        $.get("http://localhost:8081/coloniaapi/v1/byidmunicipio/" + idMunicipioActual, function (colonias) {
                             $("#coloniaddl").empty().append('<option value="0">Selecciona una Colonia</option>');
                             $.each(colonias.objects, function (i, colonia) {
                                 const selected = colonia.idColonia === idColoniaActual ? 'selected' : '';
