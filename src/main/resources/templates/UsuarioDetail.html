@@ -16,13 +16,13 @@
                                             'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNT31I-b-Jdf8bjPM-mm-V1qCpb-oudRLvtw&s') }|">
                     <div class="card-body">
                         <h3
-                            th:text="|${usuarioDirecciones.Usuario.Nombre} ${usuarioDirecciones.Usuario.ApellidoPaterno} ${usuarioDirecciones.Usuario.ApellidoMaterno}|">
+                            th:text="|${usuarioDirecciones.Usuario.nombre} ${usuarioDirecciones.Usuario.apellidoPaterno} ${usuarioDirecciones.Usuario.apellidoMaterno}|">
                         </h3>
-                        <p class="card-text" th:text="|Username: ${usuarioDirecciones.Usuario.Username}|"></p>
-                        <p class="card-text" th:text="|Email: ${usuarioDirecciones.Usuario.Email}|"></p>
+                        <p class="card-text" th:text="|Username: ${usuarioDirecciones.Usuario.username}|"></p>
+                        <p class="card-text" th:text="|Email: ${usuarioDirecciones.Usuario.email}|"></p>
                         <!-- Editar Usuario -->
                         <a class="btn btn-warning btn-sm"
-                            th:href="@{/Usuario/formEditable(IdUsuario=${usuarioDirecciones.Usuario.IdUsuario})}">Editar datos</a>
+                            th:href="@{/Usuario/formEditable(IdUsuario=${usuarioDirecciones.Usuario.idUsuario})}">Editar datos</a>
                     </div>
                 </div>
             </div>
