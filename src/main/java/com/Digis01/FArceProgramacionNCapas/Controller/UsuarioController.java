@@ -197,75 +197,75 @@ public class UsuarioController {
     }
 
     // Procesa el archivo subido por el usuario
-    @PostMapping("/CargaMasiva")
-    public String CargaMasiva(@RequestParam MultipartFile archivo, Model model, HttpSession session) {
-
-        // Validación inicial: si no se seleccionó archivo
-        /*if (archivo == null || archivo.isEmpty()) {
-            model.addAttribute("mensaje", "No se seleciono archivo.");
-            return "cargaMasiva";
-            
-        }*/
-        try {
-            // Guardsarlo en un punto del sistema
-            if (archivo != null && !archivo.isEmpty()) { // Mientras el archivo no sea nulo ni esta vacio
-
-                //Body 
-                ByteArrayResource byteArrayResource = new ByteArrayResource(archivo.getBytes());
-                MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-                body.add("archivo", byteArrayResource);
-
-                //Headers
-                HttpHeaders httpHeaders = new HttpHeaders();
-                httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-                //Entidad de la petición
-                HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity(body, httpHeaders);
-
-                ResponseEntity<ResultFile> responseEntity = restTemplate.exchange(
-                        url,
-                        HttpMethod.GET,
-                        httpEntity,
-                        new ParameterizedTypeReference<ResultFile>() {
-                });
-
-                // Validar los datos leídos del archivo
-                List<ResultFile> listaErrores = ValidarArchivo(listaUsuarios);
-
-                if (listaErrores.isEmpty()) {
-                    // Si no hay errores, se guarda la ruta en la sesión y se puede procesar más adelante
-                    session.setAttribute("urlFile", absolutePath); // Guarda ruta en sesión si no hay errores
-                    model.addAttribute("listaErrores", listaErrores); // Mostrar la lista de errores "ya procesados"
-                    model.addAttribute("archivoNombre", archivo.getOriginalFilename());
-                    model.addAttribute("exito", true);
-                } else {
-                    // Si hay errores, se envían al frontend
-                    model.addAttribute("listaErrores", listaErrores); // Mostrar errores en el frontend
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace(); // Log del error
-            model.addAttribute("mensaje", "Error al procesar el archivo.");
-            return "redirect:/Usuario/CargaMasiva";
-        }
-        return "CargaMasiva"; // regresar a la vista
-    }
-
-    // Procesar archivo
-    @GetMapping("/CargaMasiva/Procesar")
-    public String ProcesarArchivo(HttpSession session) {
-        String absolutePath = session.getAttribute("urlFile").toString();
-        List<UsuarioDireccion> listaUsuarios = LecturaArchivoTXT(new File(absolutePath));
-
-        for (UsuarioDireccion usuarioDireccion : listaUsuarios) {
-            System.out.println("Estoy agregando un nuevo usuario y direccion");
-            //usuarioDAOImplementation.Add(usuarioDireccion);
-            usuarioDAOImplementation.AddJPA(usuarioDireccion);
-        }
-
-        return "CargaMasiva";
-    }
-
+//    @PostMapping("/CargaMasiva")
+//    public String CargaMasiva(@RequestParam MultipartFile archivo, Model model, HttpSession session) {
+//
+//        // Validación inicial: si no se seleccionó archivo
+//        /*if (archivo == null || archivo.isEmpty()) {
+//            model.addAttribute("mensaje", "No se seleciono archivo.");
+//            return "cargaMasiva";
+//            
+//        }*/
+//        try {
+//            // Guardsarlo en un punto del sistema
+//            if (archivo != null && !archivo.isEmpty()) { // Mientras el archivo no sea nulo ni esta vacio
+//
+//                //Body 
+//                ByteArrayResource byteArrayResource = new ByteArrayResource(archivo.getBytes());
+//                MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+//                body.add("archivo", byteArrayResource);
+//
+//                //Headers
+//                HttpHeaders httpHeaders = new HttpHeaders();
+//                httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+//
+//                //Entidad de la petición
+//                HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity(body, httpHeaders);
+//
+//                ResponseEntity<ResultFile> responseEntity = restTemplate.exchange(
+//                        url,
+//                        HttpMethod.GET,
+//                        httpEntity,
+//                        new ParameterizedTypeReference<ResultFile>() {
+//                });
+//
+//                // Validar los datos leídos del archivo
+//                List<ResultFile> listaErrores = ValidarArchivo(listaUsuarios);
+//
+//                if (listaErrores.isEmpty()) {
+//                    // Si no hay errores, se guarda la ruta en la sesión y se puede procesar más adelante
+//                    session.setAttribute("urlFile", absolutePath); // Guarda ruta en sesión si no hay errores
+//                    model.addAttribute("listaErrores", listaErrores); // Mostrar la lista de errores "ya procesados"
+//                    model.addAttribute("archivoNombre", archivo.getOriginalFilename());
+//                    model.addAttribute("exito", true);
+//                } else {
+//                    // Si hay errores, se envían al frontend
+//                    model.addAttribute("listaErrores", listaErrores); // Mostrar errores en el frontend
+//                }
+//            }
+//        } catch (Exception ex) {
+//            ex.printStackTrace(); // Log del error
+//            model.addAttribute("mensaje", "Error al procesar el archivo.");
+//            return "redirect:/Usuario/CargaMasiva";
+//        }
+//        return "CargaMasiva"; // regresar a la vista
+//    }
+//
+//    // Procesar archivo
+//    @GetMapping("/CargaMasiva/Procesar")
+//    public String ProcesarArchivo(HttpSession session) {
+//        String absolutePath = session.getAttribute("urlFile").toString();
+//        List<UsuarioDireccion> listaUsuarios = LecturaArchivoTXT(new File(absolutePath));
+//
+//        for (UsuarioDireccion usuarioDireccion : listaUsuarios) {
+//            System.out.println("Estoy agregando un nuevo usuario y direccion");
+//            //usuarioDAOImplementation.Add(usuarioDireccion);
+//            usuarioDAOImplementation.AddJPA(usuarioDireccion);
+//        }
+//
+//        return "CargaMasiva";
+//    }
+//
     @GetMapping("/formEditable")
     public String FormEditable(Model model, @RequestParam int IdUsuario, @RequestParam(required = false) Integer IdDireccion) {
         if (IdDireccion == null) {//Editar Usuario
@@ -274,32 +274,36 @@ public class UsuarioController {
             UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
 
             // Obtener usuario por Id
-            ResponseEntity<Result<Usuario>> responseUsuario = restTemplate.exchange(
+            ResponseEntity<Result<UsuarioDireccion>> responseUsuario = restTemplate.exchange(
                     urlBase + urlApi + "/GetById/" + IdUsuario,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<Result<Usuario>>() {
+                    new ParameterizedTypeReference<Result<UsuarioDireccion>>() {
             },
                     IdUsuario
             );
 
-            Result response = responseEntity.getBody();
+            Result<UsuarioDireccion> result = responseUsuario.getBody();
 
-            usuarioDireccion = (UsuarioDireccion) usuarioDAOImplementation.GetByIdJPA(IdUsuario).object;
-            usuarioDireccion.Direccion = new Direccion();   //Error de linea java.lang.NullPointerException: Cannot assign field "Direccion" because "usuarioDireccion" is null
-            usuarioDireccion.Direccion.setIdDireccion(-1);
-            model.addAttribute("usuarioDireccion", usuarioDireccion);
+            if (result != null && result.correct && result.object != null) {
 
-            // Obtener roles
-            ResponseEntity<Result<Rol>> responseRolEntity = restTemplate.exchange(
-                    "http://localhost:8081/api/v1/rolapi",
-                    HttpMethod.GET,
-                    HttpEntity.EMPTY,
-                    new ParameterizedTypeReference<Result<Rol>>() {
-            });
-            Result<Rol> resultRol = responseRolEntity.getBody();
+                // Preparar la dirección
+                usuarioDireccion.Direccion = new Direccion();
+                usuarioDireccion.Direccion.setIdDireccion(-1);
+                model.addAttribute("usuarioDireccion", usuarioDireccion);
 
-            model.addAttribute("roles", resultRol.objects);
+                // Obtener roles
+                ResponseEntity<Result<Rol>> responseRolEntity = restTemplate.exchange(
+                        urlBase + rolurlApi,
+                        HttpMethod.GET,
+                        HttpEntity.EMPTY,
+                        new ParameterizedTypeReference<Result<Rol>>() {
+                }
+                );
+
+                Result<Rol> resultRol = responseRolEntity.getBody();
+                model.addAttribute("roles", resultRol.objects);
+            }
         } else if (IdDireccion == 0) {//Agregar Direccion
             System.out.println("Voy a agregar una direccion al usuario");
             UsuarioDireccion usuarioDireccion = new UsuarioDireccion();
@@ -321,8 +325,27 @@ public class UsuarioController {
             model.addAttribute("paises", resultPais.correct ? resultPais.objects : null);
 
             // Guardar la direccion
-            
-            
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<UsuarioDireccion> request = new HttpEntity<>(usuarioDireccion, headers);
+
+            ResponseEntity<Result> response = restTemplate.exchange(
+                    urlBase + urlApi + "/add",
+                    HttpMethod.POST,
+                    request,
+                    Result.class
+            );
+
+            Result result = response.getBody();
+            if (result != null && result.correct) {
+                System.out.println("Dirección guardada correctamente");
+                // Redireccionar o mostrar éxito
+            } else {
+                System.out.println("Error al guardar: " + result.errorMessage);
+                model.addAttribute("error", result != null ? result.errorMessage : "Error desconocido");
+            }
+
         } else { //Editar direccion
             System.out.println("Voy a editar la direccion de un usuario");
 
@@ -363,35 +386,23 @@ public class UsuarioController {
         return "UsuarioForm";
     }
 
-    /*@PostMapping("/GetAllDinamico")
-    public String BusquedaDinamica(@ModelAttribute Usuario usuario, Model model) {
-        //Result result = usuarioDAOImplementation.GetAllDinamico(usuario);
-        Result result = usuarioDAOImplementation.GetAllDinamicoJPA(usuario);
-        //Result resultRol = RolDAOImplementation.GetAll();
-        Result resultRol = RolDAOImplementation.GetAllJPA();
-        Usuario usuarioBusqueda = new Usuario();
-        usuarioBusqueda.setStatus(-1);
-        usuarioBusqueda.Rol = new Rol();
-
-        model.addAttribute("roles", resultRol.object);
-        model.addAttribute("listaUsuarios", result.objects);
-        model.addAttribute("usuarioBusqueda", usuarioBusqueda);
-
-        return "UsuarioIndex";
-    }
-
-    @PostMapping("/ActualizarStatus")
-    @ResponseBody
-    public String actualizarStatus(@RequestParam int IdUsuario, @RequestParam int Status) {
-        Usuario usuario = new Usuario();
-        usuario.setIdUsuario(IdUsuario);
-        usuario.setStatus(Status);
-
-        //Result result = usuarioDAOImplementation.UpdateStatus(usuario);
-        Result result = usuarioDAOImplementation.UpdateStatusJPA(usuario);
-
-        return result.correct ? "OK" : "ERROR";
-    }*/
+//    @PostMapping("/GetAllDinamico")
+//    public String BusquedaDinamica(@ModelAttribute Usuario usuario, Model model) {
+//        //Result result = usuarioDAOImplementation.GetAllDinamico(usuario);
+//        Result result = usuarioDAOImplementation.GetAllDinamicoJPA(usuario);
+//        //Result resultRol = RolDAOImplementation.GetAll();
+//        Result resultRol = RolDAOImplementation.GetAllJPA();
+//        Usuario usuarioBusqueda = new Usuario();
+//        usuarioBusqueda.setStatus(-1);
+//        usuarioBusqueda.Rol = new Rol();
+//
+//        model.addAttribute("roles", resultRol.object);
+//        model.addAttribute("listaUsuarios", result.objects);
+//        model.addAttribute("usuarioBusqueda", usuarioBusqueda);
+//
+//        return "UsuarioIndex";
+//    }
+    
     @PostMapping("Form")
     public String Form(@Valid @ModelAttribute UsuarioDireccion usuarioDireccion, BindingResult BindingResult, @RequestParam(required = false) MultipartFile imagenFile, Model model) {
 
@@ -428,7 +439,7 @@ public class UsuarioController {
             });
 
         } else {
-            if (usuarioDireccion.Direccion.getIdDireccion() == -1) { // Editar Usuario
+            /*if (usuarioDireccion.Direccion.getIdDireccion() == -1) { // Editar Usuario
                 System.out.println("Estoy actualizando un usuario");
                 //usuarioDAOImplementation.Update(usuarioDireccion.Usuario);
                 usuarioDAOImplementation.UpdateJPA(usuarioDireccion.Usuario);
@@ -448,7 +459,7 @@ public class UsuarioController {
                 System.out.println("Estoy actualizando direccion");
                 //direccionDAOImplementation.UpdateById(usuarioDireccion);
                 direccionDAOImplementation.UpdateByIdJPA(usuarioDireccion);
-            }
+            }*/
         }
         // Si no hay errores en la BD guardar los datos
 //        usuarioDAOImplementation.Add(usuarioDireccion);

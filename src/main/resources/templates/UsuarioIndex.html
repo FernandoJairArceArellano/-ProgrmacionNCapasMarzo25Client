@@ -1,119 +1,119 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultra.net.nz/thyemeleaf/layout"
-      layout:decorate=~{layout}>
+    layout:decorate=~{layout}>
 
-    <head>
-        <title>Index Usuarios</title>
-    </head>
+<head>
+    <title>Index Usuarios</title>
+</head>
 
-    <body layout:fragment="body">
+<body layout:fragment="body">
 
-        <!-- Contenido Principal -->
-        <div class="container table-container">
-            <h4>Hola, Bienvenido <span th:text="${nombre}"></span></h4>
+    <!-- Contenido Principal -->
+    <div class="container table-container">
+        <h4>Hola, Bienvenido <span th:text="${nombre}"></span></h4>
 
-            <div class="alert alert-success">
-                <strong>Exito!</strong> mensaje correcto pendiente de implementar
-            </div>
-            
-            <div class="container">
-                <!-- Botón para agregar usuario -->
-                <a class="btn btn-primary btn-add" th:href="@{/Usuario/Form/0}"> <i class="bi bi-person-add"></i> Agregar
-                    usuario</a>
-                <div class="form-container">
-                    <form th:action="@{/Usuario/GetAllDinamico}" method="post" th:object="${usuarioBusqueda}">
-                        <div class="row g-3 align-items-end mb-3">
-                            <div class="col-5 col-md-2">
-                                <label for="nombre" class="form-label"><i class="bi bi-person"></i> Nombre(s)</label>
-                                <input type="text" id="NombreUsuario" class="form-control" placeholder="Nombre"
-                                       th:field="*{Nombre}">
-                            </div>
-                            <div class="col-5 col-md-2">
-                                <label for="apellidopaterno" class="form-label"><i class="bi bi-person"></i> Apellido
-                                    Paterno</label>
-                                <input type="text" id="ApellidoPaterno" class="form-control" placeholder="Apellido Paterno"
-                                       th:field="*{ApellidoPaterno}">
-                            </div>
-                            <div class="col-5 col-md-2">
-                                <label for="apellidomaterno" class="form-label"><i class="bi bi-person"></i> Apellido
-                                    Materno</label>
-                                <input type="text" id="ApellidoMaterno" class="form-control" placeholder="Apellido Materno"
-                                       th:field="*{ApellidoMaterno}">
-                            </div>
-                            <div class="col-5 col-md-2">
-                                <label for="rolUsuario" class="form-label" id="rol"><i class="bi bi-person-rolodex"></i>
-                                    Rol</label>
-                                <select class="form-select" id="rolUsuario" aria-label="Default select example"
-                                        th:field="*{Rol.IdRol}">
-                                    <option value=0 selected>Seleccione un Rol</option>
-                                    <option th:each="rol : ${roles}" th:value="${rol.IdRol}" th:text="${rol.Nombre}">One
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="col-5 col-md-2">
-                                <label for="statusUsuario" class="form-label"><i class="bi bi-toggle-on"></i> Baja
-                                    Logica</label>
-                                <select class="form-select" id="statusUsuario" th:field="*{Status}">
-                                    <option value="-1" selected>Todos</option>
-                                    <option value="0">Activos</option>
-                                    <option value="1">Inactivos</option>
-                                </select>
-                            </div>
-                            <div class="col-6 col-md-1 d-grid">
-                                <button type="submit" class="btn btn-success"><i class="bi bi-search"></i> Buscar</button>
-                            </div>
+        <div class="alert alert-success">
+            <strong>Exito!</strong> mensaje correcto pendiente de implementar
+        </div>
+
+        <div class="container">
+            <!-- Botón para agregar usuario -->
+            <a class="btn btn-primary btn-add" th:href="@{/Usuario/Form/0}"> <i class="bi bi-person-add"></i> Agregar
+                usuario</a>
+            <div class="form-container">
+                <form th:action="@{/Usuario/GetAllDinamico}" method="post" th:object="${usuarioBusqueda}">
+                    <div class="row g-3 align-items-end mb-3">
+                        <div class="col-5 col-md-2">
+                            <label for="nombre" class="form-label"><i class="bi bi-person"></i> Nombre(s)</label>
+                            <input type="text" id="NombreUsuario" class="form-control" placeholder="Nombre"
+                                th:field="*{Nombre}">
                         </div>
-                    </form>
-                </div>
+                        <div class="col-5 col-md-2">
+                            <label for="apellidopaterno" class="form-label"><i class="bi bi-person"></i> Apellido
+                                Paterno</label>
+                            <input type="text" id="ApellidoPaterno" class="form-control" placeholder="Apellido Paterno"
+                                th:field="*{ApellidoPaterno}">
+                        </div>
+                        <div class="col-5 col-md-2">
+                            <label for="apellidomaterno" class="form-label"><i class="bi bi-person"></i> Apellido
+                                Materno</label>
+                            <input type="text" id="ApellidoMaterno" class="form-control" placeholder="Apellido Materno"
+                                th:field="*{ApellidoMaterno}">
+                        </div>
+                        <div class="col-5 col-md-2">
+                            <label for="rolUsuario" class="form-label" id="rol"><i class="bi bi-person-rolodex"></i>
+                                Rol</label>
+                            <select class="form-select" id="rolUsuario" aria-label="Default select example"
+                                th:field="*{Rol.IdRol}">
+                                <option value=0 selected>Seleccione un Rol</option>
+                                <option th:each="rol : ${roles}" th:value="${rol.IdRol}" th:text="${rol.Nombre}">One
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-5 col-md-2">
+                            <label for="statusUsuario" class="form-label"><i class="bi bi-toggle-on"></i> Baja
+                                Logica</label>
+                            <select class="form-select" id="statusUsuario" th:field="*{Status}">
+                                <option value="-1" selected>Todos</option>
+                                <option value="0">Activos</option>
+                                <option value="1">Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-1 d-grid">
+                            <button type="submit" class="btn btn-success"><i class="bi bi-search"></i> Buscar</button>
+                        </div>
+                    </div>
+                </form>
             </div>
+        </div>
 
-            <!-- Tabla de usuarios -->
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th style="min-width: 50px;">IdUsuario</th>
-                            <th style="min-width: 100px;">Imagen</th>
-                            <th style="min-width: 150px;">Nombre</th>
-                            <th style="min-width: 100px;">Username</th>
-                            <th style="min-width: 100px;">Status</th>
-                            <th style="min-width: 100px;">Contacto</th>
-                            <th style="min-width: 300px;">Dirección</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="usuarioDirecciones : ${listaUsuarios}">
-                            <td class="align-middle" data-label="IdUsuario">
-                                <span th:text="${usuarioDirecciones.Usuario.IdUsuario}"></span>
-                            </td>
-                            <td class="align-middle" data-label="Imagen">
-                                <img style="max-width: 75px"
-                                     th:src="${usuarioDirecciones.Usuario.Imagen != null} ? 'data:image/png;base64,' + ${usuarioDirecciones.Usuario.Imagen} :'https://static-00.iconduck.com/assets.00/profile-default-icon-2048x2045-u3j7s5nj.png'" />
-                            </td>
-                            <td class="align-middle" data-label="Nombre"
-                                th:text="|${usuarioDirecciones.Usuario.Nombre} ${usuarioDirecciones.Usuario.ApellidoPaterno} ${usuarioDirecciones.Usuario.ApellidoMaterno}|">
-                            </td>
-                            <td class="align-middle" data-label="Username" th:text="${usuarioDirecciones.Usuario.Username}">
-                            </td>
-                            <td class="align-middle text-nowrap" style="min-width: 120px;" data-label="Status">
-                                <div class="form-check form-switch d-flex align-items-center gap-2">
-                                    <input class="form-check-input status-switch" type="checkbox"
-                                           th:id="'statusSwitch' + ${usuarioDirecciones.Usuario.IdUsuario}"
-                                           th:checked="${usuarioDirecciones.Usuario.Status == 1}"
-                                           th:data-id="${usuarioDirecciones.Usuario.IdUsuario}">
-                                    <label class="form-check-label status-label m-0"
-                                           th:for="'statusSwitch' + ${usuarioDirecciones.Usuario.IdUsuario}"
-                                           th:text="${usuarioDirecciones.Usuario.Status == 1 ? 'Activo' : 'Inactivo'}"></label>
-                                </div>
-                            </td>
-                            <td class="align-middle" data-label="Contacto"
-                                th:text="|📞 ${usuarioDirecciones.Usuario.Telefono} 📱 ${usuarioDirecciones.Usuario.NCelular}|">
-                            </td>
-                            <td class="align-middle" data-label="Dirección">
-                                <ul>
-                                    <li th:if="${not #lists.isEmpty(usuarioDirecciones.Direcciones)}"
-                                        th:each="direccion : ${usuarioDirecciones.Direcciones}">
-                                        <span th:text="|${direccion.Calle ?: ''} 
+        <!-- Tabla de usuarios -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="min-width: 50px;">IdUsuario</th>
+                        <th style="min-width: 100px;">Imagen</th>
+                        <th style="min-width: 150px;">Nombre</th>
+                        <th style="min-width: 100px;">Username</th>
+                        <th style="min-width: 100px;">Status</th>
+                        <th style="min-width: 100px;">Contacto</th>
+                        <th style="min-width: 300px;">Dirección</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="usuarioDirecciones : ${listaUsuarios}">
+                        <td class="align-middle" data-label="IdUsuario">
+                            <span th:text="${usuarioDirecciones.Usuario.IdUsuario}"></span>
+                        </td>
+                        <td class="align-middle" data-label="Imagen">
+                            <img style="max-width: 75px"
+                                th:src="${usuarioDirecciones.Usuario.Imagen != null} ? 'data:image/png;base64,' + ${usuarioDirecciones.Usuario.Imagen} :'https://static-00.iconduck.com/assets.00/profile-default-icon-2048x2045-u3j7s5nj.png'" />
+                        </td>
+                        <td class="align-middle" data-label="Nombre"
+                            th:text="|${usuarioDirecciones.Usuario.Nombre} ${usuarioDirecciones.Usuario.ApellidoPaterno} ${usuarioDirecciones.Usuario.ApellidoMaterno}|">
+                        </td>
+                        <td class="align-middle" data-label="Username" th:text="${usuarioDirecciones.Usuario.Username}">
+                        </td>
+                        <td class="align-middle text-nowrap" style="min-width: 120px;" data-label="Status">
+                            <div class="form-check form-switch d-flex align-items-center gap-2">
+                                <input class="form-check-input status-switch" type="checkbox"
+                                    th:id="'statusSwitch' + ${usuarioDirecciones.Usuario.IdUsuario}"
+                                    th:checked="${usuarioDirecciones.Usuario.Status == 1}"
+                                    th:data-id="${usuarioDirecciones.Usuario.IdUsuario}">
+                                <label class="form-check-label status-label m-0"
+                                    th:for="'statusSwitch' + ${usuarioDirecciones.Usuario.IdUsuario}"
+                                    th:text="${usuarioDirecciones.Usuario.Status == 1 ? 'Activo' : 'Inactivo'}"></label>
+                            </div>
+                        </td>
+                        <td class="align-middle" data-label="Contacto"
+                            th:text="|📞 ${usuarioDirecciones.Usuario.Telefono} 📱 ${usuarioDirecciones.Usuario.NCelular}|">
+                        </td>
+                        <td class="align-middle" data-label="Dirección">
+                            <ul>
+                                <li th:if="${not #lists.isEmpty(usuarioDirecciones.Direcciones)}"
+                                    th:each="direccion : ${usuarioDirecciones.Direcciones}">
+                                    <span th:text="|${direccion.Calle ?: ''} 
                                               ${direccion.NumeroInterior ?: ''} 
                                               ${direccion.NumeroExterior ?: ''}
                                               ${direccion.Colonia.Nombre ?: ''}
@@ -121,106 +121,109 @@
                                               ${direccion.Colonia.Municipio.Nombre ?: ''} 
                                               ${direccion.Colonia.Municipio.Estado.Nombre ?: ''} 
                                               ${direccion.Colonia.Municipio.Estado.Pais.Nombre ?: ''}|">
-                                            <!-- Uso del operador ?: en lugar de != null ? para evitar concatenar valores null con comas. -->
-                                        </span>
-                                    </li>
+                                        <!-- Uso del operador ?: en lugar de != null ? para evitar concatenar valores null con comas. -->
+                                    </span>
+                                </li>
 
-                                    <li th:if="${#lists.isEmpty(usuarioDirecciones.Direcciones)}">
-                                        <span class="text-muted">Sin dirección registrada</span>
-                                    </li>
-                                </ul>
-                            </td>
+                                <li th:if="${#lists.isEmpty(usuarioDirecciones.Direcciones)}">
+                                    <span class="text-muted">Sin dirección registrada</span>
+                                </li>
+                            </ul>
+                        </td>
 
-                            <td class="align-middle" data-label="Acciones">
-                                <div class="d-flex flex-column flex-md-row gap-2 justify-content-center">
-                                    <a class="btn btn-warning btn-sm btn-action"
-                                       th:href="@{/Usuario/Form/{IdUsuario}(IdUsuario = ${usuarioDirecciones.Usuario.IdUsuario})}">
-                                        <i class="bi bi-pencil-square"></i> Editar
-                                    </a>
-                                    <a class="btn btn-danger btn-sm btn-action"
-                                       th:href="@{/Usuario/Delete/{IdUsuario}(IdUsuario = ${usuarioDirecciones.Usuario.IdUsuario})}">
-                                        <i class="bi bi-trash3"></i> Eliminar
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                        <td class="align-middle" data-label="Acciones">
+                            <div class="d-flex flex-column flex-md-row gap-2 justify-content-center">
+                                <a class="btn btn-warning btn-sm btn-action"
+                                    th:href="@{/Usuario/Form/{IdUsuario}(IdUsuario = ${usuarioDirecciones.Usuario.IdUsuario})}">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a>
+                                <a class="btn btn-danger btn-sm btn-action"
+                                    th:href="@{/Usuario/Delete/{IdUsuario}(IdUsuario = ${usuarioDirecciones.Usuario.IdUsuario})}">
+                                    <i class="bi bi-trash3"></i> Eliminar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
+    </div>
 
-        <style>
-            /* Estilos generales */
-            body {
-                overflow-x: hidden;
-                background-color: #f8f9fa;
-            }
+    <style>
+        /* Estilos generales */
+        body {
+            overflow-x: hidden;
+            background-color: #f8f9fa;
+        }
 
-            /* Contenedor de la tabla */
-            .table-container {
-                margin-top: 20px;
-                background: white;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            }
+        /* Contenedor de la tabla */
+        .table-container {
+            margin-top: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
 
-            /* Botón Agregar Usuario */
-            .btn-add {
-                margin-bottom: 15px;
-                transition: all 0.3s ease-in-out;
-            }
+        /* Botón Agregar Usuario */
+        .btn-add {
+            margin-bottom: 15px;
+            transition: all 0.3s ease-in-out;
+        }
 
-            .btn-add:hover {
-                transform: scale(1.05);
-                box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-            }
+        .btn-add:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
 
-            /* Hacer la tabla más responsiva */
-            .table-responsive-md {
-                width: 100%;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
+        /* Hacer la tabla más responsiva */
+        .table-responsive-md {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 
-            /* Estilo de las celdas de la tabla */
-            .table th,
-            .table td {
-                padding: 0.75rem;
-                vertical-align: middle;
-            }
-        </style>
-        <script>
-            $(document).ready(function () {
-                $('.status-switch').on('change', function () {
-                    const checkbox = $(this);
-                    const IdUsuario = checkbox.data('id');
-                    const status = checkbox.is(':checked') ? 1 : 0;
+        /* Estilo de las celdas de la tabla */
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            vertical-align: middle;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $('.status-switch').on('change', function () {
+                const checkbox = $(this);
+                const idUsuario = checkbox.data('id');
+                const status = checkbox.is(':checked') ? 1 : 0;
 
-                    $.ajax({
-                        url: '/Usuario/ActualizarStatus',
-                        method: 'POST',
-                        data: {
-                            IdUsuario: IdUsuario,
-                            Status: status
-                        },
-                        success: function (response) {
-                            if (response === 'OK') {
-                                const label = checkbox.closest('.form-check').find('.status-label');
-                                label.text(status === 1 ? 'Activo' : 'Inactivo');
-                            } else {
-                                alert('Error al actualizar el estado');
-                                checkbox.prop('checked', !checkbox.is(':checked')); // revertir cambio si falla
-                            }
-                        },
-                        error: function () {
-                            alert('Ocurrió un error en el servidor');
-                            checkbox.prop('checked', !checkbox.is(':checked')); // revertir cambio si falla
+                fetch('http://localhost:8081/usuarioapi/v1/updateStatus', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        idUsuario: idUsuario,
+                        status: status
+                    })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error en la respuesta del servidor');
                         }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const label = checkbox.closest('.form-check').find('.status-label');
+                        label.text(status === 1 ? 'Activo' : 'Inactivo');
+                    })
+                    .catch(error => {
+                        alert('Ocurrió un error al actualizar el estado');
+                        checkbox.prop('checked', !checkbox.is(':checked')); // revertir si falla
                     });
-                });
             });
-        </script>
-    </body>
+        });
+    </script>
+</body>
 
 </html>
