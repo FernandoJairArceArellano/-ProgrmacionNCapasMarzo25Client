@@ -34,6 +34,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -341,7 +342,7 @@ public class UsuarioController {
                     HttpEntity.EMPTY,
                     new ParameterizedTypeReference<Result<Pais>>() {
             });
-            
+
             Result<Pais> resultPais = responsePaisEntity.getBody();
 
             model.addAttribute("paises", resultPais.correct ? resultPais.objects : null);
@@ -385,7 +386,9 @@ public class UsuarioController {
             usuarioDireccion.Usuario.setIdUsuario(IdUsuario);
 
             if (resultDireccion != null && resultDireccion.correct && resultDireccion.object != null) {
-                usuarioDireccion.Direccion = resultDireccion.object;
+                usuarioDireccion.Direccion = new Direccion();
+                usuarioDireccion.Direccion.setIdDireccion(IdDireccion);
+                usuarioDireccion.Direccion = (Direccion) resultDireccion.object;
             } else {
                 usuarioDireccion.Direccion = new Direccion(); // para evitar null
                 model.addAttribute("error", "No se pudo obtener la dirección");
@@ -400,9 +403,36 @@ public class UsuarioController {
             });
             Result<Pais> resultPais = responsePaisEntity.getBody();
 
+            ResponseEntity<Result<Estado>> responseEstadoEntity = restTemplate.exchange(
+                    urlBase + "/estadoapi/v1/byidpais/{IdPais}",
+                    HttpMethod.GET,
+                    HttpEntity.EMPTY,
+                    new ParameterizedTypeReference<Result<Estado>>() {
+            });
+            Result<Estado> resultEstado = responseEstadoEntity.getBody();
+
+            ResponseEntity<Result<Municipio>> responseMunicipioEntity = restTemplate.exchange(
+                    urlBase + "/municipioapi/v1/byidestado/{IdEstado}",
+                    HttpMethod.GET,
+                    HttpEntity.EMPTY,
+                    new ParameterizedTypeReference<Result<Municipio>>() {
+            });
+            Result<Municipio> resultMunicipio = responseMunicipioEntity.getBody();
+            
+            ResponseEntity<Result<Colonia>> responseColoniaEntity = restTemplate.exchange(
+                    urlBase + "/coloniaapi/v1/byidmunicipio/{IdMunicipio}",
+                    HttpMethod.GET,
+                    HttpEntity.EMPTY,
+                    new ParameterizedTypeReference<Result<Colonia>>() {
+            });
+            Result<Colonia> resultColonia = responseColoniaEntity.getBody();
+            
             model.addAttribute("usuarioDireccion", usuarioDireccion);
 
             model.addAttribute("paises", resultPais.correct ? resultPais.objects : null);
+            model.addAttribute("estados", resultEstado.correct ? resultEstado.objects : null);
+            model.addAttribute("municipios", resultMunicipio.correct ? resultMunicipio.objects : null);
+            model.addAttribute("colonias", resultColonia.correct ? resultColonia.objects : null);
 
         }
         return "UsuarioForm";
@@ -462,16 +492,29 @@ public class UsuarioController {
         } else {
             if (usuarioDireccion.Direccion.getIdDireccion() == -1) { // Editar Usuario
                 System.out.println("Estoy actualizando un usuario");
-                ResponseEntity<Result<Usuario>> responseUsuarioEntity = restTemplate.execute(
-                        urlBase + urlApi + "/update/", 
-                        HttpMethod.POST, 
-                        HttpEntity.EMPTY, 
-                        new ParameterizedTypeReference<Result<Usuario>> (){
-                        });
 
-                Result<Usuario> resultUpdate = responseUsuarioEntity.getBody();
-                
-            } else if (usuarioDireccion.Direccion.getIdDireccion() == 0) { // Agregar direccion
+                // Preparar headers y entidada
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<Usuario> requestEntity = new HttpEntity<>(usuarioDireccion.Usuario, headers);
+
+                // Llamada PUT
+                ResponseEntity<String> response = restTemplate.exchange(
+                        urlBase + urlApi + "/update",
+                        HttpMethod.PUT,
+                        requestEntity,
+                        String.class
+                );
+
+                if (response.getStatusCode() == HttpStatus.OK) {
+                    System.out.println("Usuario actualizado correctamente.");
+                } else {
+                    System.out.println("Error al actualizar usuario: " + response.getBody());
+                }
+
+            }
+            /*else if (usuarioDireccion.Direccion.getIdDireccion() == 0) { // Agregar direccion
                 System.out.println("Estoy agregando direccion");
                 //direccionDAOImplementation.DireccionAdd(usuarioDireccion);
                 HttpEntity<UsuarioDireccion> entity = new HttpEntity<>(usuarioDireccion);
@@ -487,7 +530,7 @@ public class UsuarioController {
                 System.out.println("Estoy actualizando direccion");
                 //direccionDAOImplementation.UpdateById(usuarioDireccion);
                 direccionDAOImplementation.UpdateByIdJPA(usuarioDireccion);
-            }
+            }*/
         }
         // Si no hay errores en la BD guardar los datos
 //        usuarioDAOImplementation.Add(usuarioDireccion);
