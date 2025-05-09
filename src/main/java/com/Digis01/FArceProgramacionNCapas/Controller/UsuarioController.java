@@ -198,70 +198,69 @@ public class UsuarioController {
     }
 
     // Procesa el archivo subido por el usuario
-    @PostMapping("/CargaMasiva")
-    public String CargaMasiva(@RequestParam MultipartFile archivo, Model model, HttpSession session) {
-
-        // Validación inicial: si no se seleccionó archivo
-        /*if (archivo == null || archivo.isEmpty()) {
-            model.addAttribute("mensaje", "No se seleciono archivo.");
-            return "cargaMasiva";
-            
-        }*/
-        try {
-            // Guardsarlo en un punto del sistema
-            if (archivo != null && !archivo.isEmpty()) { // Mientras el archivo no sea nulo ni esta vacio
-
-                //Body 
-                ByteArrayResource byteArrayResource = new ByteArrayResource(archivo.getBytes()) {
-                    @Override
-                    public String getFilename() {
-                        return archivo.getOriginalFilename();
-                    }
-                };
-
-                MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-                body.add("archivo", byteArrayResource);
-
-                //Headers
-                HttpHeaders httpHeaders = new HttpHeaders();
-                httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-                //Entidad de la petición
-                HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity(body, httpHeaders);
-
-                ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(
-                        urlBase + urlApi + "/cargaMasiva/",
-                        HttpMethod.GET,
-                        httpEntity,
-                        new ParameterizedTypeReference<Map<String, Object>>() {
-                });
-
-                // Validar los datos leídos del archivo
-                List<ResultFile> listaErrores = ValidarArchivo(listaUsuarios);
-
-                //¿Dónde viene mi lista de Errores?
-                //(boolean) responseEntity.getBody().get("correct") == true
-                if (responseEntity.getStatusCode().is2xxSuccessful()) {
-                    // Si no hay errores, se guarda la ruta en la sesión y se puede procesar más adelante
-                    session.setAttribute("urlFile", responseEntity.getBody().get("object")); // Guarda ruta en sesión si no hay errores
-                    model.addAttribute("listaErrores", listaErrores); // Mostrar la lista de errores "ya procesados"
-                    model.addAttribute("archivoNombre", archivo.getOriginalFilename());
-                    model.addAttribute("exito", true);
-                } else {
-                    if (responseEntity.getStatusCode().is4xxClientError()) {
-                        // Si hay errores, se envían al frontend
-                        model.addAttribute("listaErrores", (String) responseEntity.getBody().get("objects")); // Mostrar errores en el frontend
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace(); // Log del error
-            model.addAttribute("mensaje", "Error al procesar el archivo.");
-            return "redirect:/Usuario/CargaMasiva";
-        }
-        return "CargaMasiva"; // regresar a la vista
-    }
-
+//    @PostMapping("/CargaMasiva")
+//    public String CargaMasiva(@RequestParam MultipartFile archivo, Model model, HttpSession session) {
+//
+//        // Validación inicial: si no se seleccionó archivo
+//        /*if (archivo == null || archivo.isEmpty()) {
+//            model.addAttribute("mensaje", "No se seleciono archivo.");
+//            return "cargaMasiva";
+//            
+//        }*/
+//        try {
+//            // Guardsarlo en un punto del sistema
+//            if (archivo != null && !archivo.isEmpty()) { // Mientras el archivo no sea nulo ni esta vacio
+//
+//                //Body 
+//                ByteArrayResource byteArrayResource = new ByteArrayResource(archivo.getBytes()) {
+//                    @Override
+//                    public String getFilename() {
+//                        return archivo.getOriginalFilename();
+//                    }
+//                };
+//
+//                MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+//                body.add("archivo", byteArrayResource);
+//
+//                //Headers
+//                HttpHeaders httpHeaders = new HttpHeaders();
+//                httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+//
+//                //Entidad de la petición
+//                HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity(body, httpHeaders);
+//
+//                ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(
+//                        urlBase + urlApi + "/cargaMasiva/",
+//                        HttpMethod.GET,
+//                        httpEntity,
+//                        new ParameterizedTypeReference<Map<String, Object>>() {
+//                });
+//
+//                // Validar los datos leídos del archivo
+//                List<ResultFile> listaErrores = ValidarArchivo(listaUsuarios);
+//
+//                //¿Dónde viene mi lista de Errores?
+//                //(boolean) responseEntity.getBody().get("correct") == true
+//                if (responseEntity.getStatusCode().is2xxSuccessful()) {
+//                    // Si no hay errores, se guarda la ruta en la sesión y se puede procesar más adelante
+//                    session.setAttribute("urlFile", responseEntity.getBody().get("object")); // Guarda ruta en sesión si no hay errores
+//                    model.addAttribute("listaErrores", listaErrores); // Mostrar la lista de errores "ya procesados"
+//                    model.addAttribute("archivoNombre", archivo.getOriginalFilename());
+//                    model.addAttribute("exito", true);
+//                } else {
+//                    if (responseEntity.getStatusCode().is4xxClientError()) {
+//                        // Si hay errores, se envían al frontend
+//                        model.addAttribute("listaErrores", (String) responseEntity.getBody().get("objects")); // Mostrar errores en el frontend
+//                    }
+//                }
+//            }
+//        } catch (Exception ex) {
+//            ex.printStackTrace(); // Log del error
+//            model.addAttribute("mensaje", "Error al procesar el archivo.");
+//            return "redirect:/Usuario/CargaMasiva";
+//        }
+//        return "CargaMasiva"; // regresar a la vista
+//    }
     // Procesar archivo
     @GetMapping("/CargaMasiva/Procesar")
     public String ProcesarArchivo(HttpSession session) {
@@ -347,28 +346,6 @@ public class UsuarioController {
 
             model.addAttribute("paises", resultPais.correct ? resultPais.objects : null);
 
-            // Guardar la direccion
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            HttpEntity<UsuarioDireccion> request = new HttpEntity<>(usuarioDireccion, headers);
-
-            ResponseEntity<Result> response = restTemplate.exchange(
-                    urlBase + urlApi + "/add",
-                    HttpMethod.POST,
-                    request,
-                    Result.class
-            );
-
-            Result result = response.getBody();
-            if (result != null && result.correct) {
-                System.out.println("Dirección guardada correctamente");
-                // Redireccionar o mostrar éxito
-            } else {
-                System.out.println("Error al guardar: " + result.errorMessage);
-                model.addAttribute("error", result != null ? result.errorMessage : "Error desconocido");
-            }
-
         } else { //Editar direccion
             System.out.println("Voy a editar la direccion de un usuario");
 
@@ -403,57 +380,89 @@ public class UsuarioController {
             });
             Result<Pais> resultPais = responsePaisEntity.getBody();
 
-            ResponseEntity<Result<Estado>> responseEstadoEntity = restTemplate.exchange(
+            ResponseEntity<Result<List<Estado>>> responseEstadoEntity = restTemplate.exchange(
                     urlBase + "/estadoapi/v1/byidpais/{IdPais}",
                     HttpMethod.GET,
                     HttpEntity.EMPTY,
-                    new ParameterizedTypeReference<Result<Estado>>() {
-            });
-            Result<Estado> resultEstado = responseEstadoEntity.getBody();
+                    new ParameterizedTypeReference<Result<List<Estado>>>() {
+            },
+                    usuarioDireccion.Direccion.Colonia.Municipio.Estado.Pais.getIdPais()
+            );
 
-            ResponseEntity<Result<Municipio>> responseMunicipioEntity = restTemplate.exchange(
+            Result<List<Estado>> resultEstado = responseEstadoEntity.getBody();
+
+            ResponseEntity<Result<List<Municipio>>> responseMunicipioEntity = restTemplate.exchange(
                     urlBase + "/municipioapi/v1/byidestado/{IdEstado}",
                     HttpMethod.GET,
                     HttpEntity.EMPTY,
-                    new ParameterizedTypeReference<Result<Municipio>>() {
-            });
-            Result<Municipio> resultMunicipio = responseMunicipioEntity.getBody();
-            
-            ResponseEntity<Result<Colonia>> responseColoniaEntity = restTemplate.exchange(
+                    new ParameterizedTypeReference<Result<List<Municipio>>>() {
+            },
+                    usuarioDireccion.Direccion.Colonia.Municipio.Estado.getIdEstado()
+            );
+
+            Result<List<Municipio>> resultMunicipio = responseMunicipioEntity.getBody();
+
+            ResponseEntity<Result<List<Colonia>>> responseColoniaEntity = restTemplate.exchange(
                     urlBase + "/coloniaapi/v1/byidmunicipio/{IdMunicipio}",
                     HttpMethod.GET,
                     HttpEntity.EMPTY,
-                    new ParameterizedTypeReference<Result<Colonia>>() {
-            });
-            Result<Colonia> resultColonia = responseColoniaEntity.getBody();
-            
+                    new ParameterizedTypeReference<Result<List<Colonia>>>() {
+            },
+                    usuarioDireccion.Direccion.Colonia.Municipio.getIdMunicipio()
+            );
+
+            Result<List<Colonia>> resultColonia = responseColoniaEntity.getBody();
+
             model.addAttribute("usuarioDireccion", usuarioDireccion);
 
             model.addAttribute("paises", resultPais.correct ? resultPais.objects : null);
-            model.addAttribute("estados", resultEstado.correct ? resultEstado.objects : null);
-            model.addAttribute("municipios", resultMunicipio.correct ? resultMunicipio.objects : null);
-            model.addAttribute("colonias", resultColonia.correct ? resultColonia.objects : null);
+            model.addAttribute("estados", resultEstado.correct ? resultEstado.object : null);
+            model.addAttribute("municipios", resultMunicipio.correct ? resultMunicipio.object : null);
+            model.addAttribute("colonias", resultColonia.correct ? resultColonia.object : null);
 
         }
         return "UsuarioForm";
     }
 
-//    @PostMapping("/GetAllDinamico")
-//    public String BusquedaDinamica(@ModelAttribute Usuario usuario, Model model) {
-//        //Result result = usuarioDAOImplementation.GetAllDinamico(usuario);
-//        Result result = usuarioDAOImplementation.GetAllDinamicoJPA(usuario);
-//        //Result resultRol = RolDAOImplementation.GetAll();
-//        Result resultRol = RolDAOImplementation.GetAllJPA();
-//        Usuario usuarioBusqueda = new Usuario();
-//        usuarioBusqueda.setStatus(-1);
-//        usuarioBusqueda.Rol = new Rol();
-//
-//        model.addAttribute("roles", resultRol.object);
-//        model.addAttribute("listaUsuarios", result.objects);
-//        model.addAttribute("usuarioBusqueda", usuarioBusqueda);
-//
-//        return "UsuarioIndex";
-//    }
+    @PostMapping("/GetAllDinamico")
+    public String BusquedaDinamica(@ModelAttribute Usuario usuario, Model model) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Usuario> request = new HttpEntity<>(usuario, headers);
+
+        ResponseEntity<Result> responseEntity = restTemplate.exchange(
+                urlBase + urlApi + "/getAllDinamico",
+                HttpMethod.POST,
+                request,
+                new ParameterizedTypeReference<Result>() {
+        }
+        );
+
+        Result result = responseEntity.getBody();
+
+        // Obtener roles
+        ResponseEntity<Result<Rol>> responseRolEntity = restTemplate.exchange(
+                urlBase + rolurlApi,
+                HttpMethod.GET,
+                HttpEntity.EMPTY,
+                new ParameterizedTypeReference<Result<Rol>>() {
+        });
+
+        Result<Rol> resultRol = responseRolEntity.getBody();
+        model.addAttribute("roles", resultRol.objects);
+
+        Usuario usuarioBusqueda = new Usuario();
+        usuarioBusqueda.setStatus(-1);
+        usuarioBusqueda.Rol = new Rol();
+
+        model.addAttribute("listaUsuarios", result.objects);
+        model.addAttribute("usuarioBusqueda", usuarioBusqueda);
+
+        return "UsuarioIndex";
+    }
+
     @PostMapping("Form")
     public String Form(@Valid @ModelAttribute UsuarioDireccion usuarioDireccion, BindingResult BindingResult, @RequestParam(required = false) MultipartFile imagenFile, Model model) {
 
@@ -471,7 +480,7 @@ public class UsuarioController {
             }
         } catch (Exception ex) {
             // Regresar con la informacion que ya estaba faltante
-            System.out.println("Error al procesar informacion");
+            System.out.println("Error al procesar informacion de la imagen");
         }
 
         if (usuarioDireccion.Usuario.getIdUsuario() == 0) {
@@ -479,11 +488,12 @@ public class UsuarioController {
             System.out.println("Estoy agregando un nuevo usuario y direccion");
 
             usuarioDireccion.Usuario.setFNacimiento(new Date());
+            usuarioDireccion.Usuario.setStatus(1);
 
             HttpEntity<UsuarioDireccion> entity = new HttpEntity<>(usuarioDireccion);
 
             restTemplate.exchange(
-                    urlBase + urlApi + "add",
+                    urlBase + urlApi + "/add",
                     HttpMethod.POST,
                     entity,
                     new ParameterizedTypeReference<Result>() {
@@ -513,24 +523,54 @@ public class UsuarioController {
                     System.out.println("Error al actualizar usuario: " + response.getBody());
                 }
 
-            }
-            /*else if (usuarioDireccion.Direccion.getIdDireccion() == 0) { // Agregar direccion
+            } else if (usuarioDireccion.Direccion.getIdDireccion() == 0) { // Agregar direccion
                 System.out.println("Estoy agregando direccion");
-                //direccionDAOImplementation.DireccionAdd(usuarioDireccion);
-                HttpEntity<UsuarioDireccion> entity = new HttpEntity<>(usuarioDireccion);
 
-                restTemplate.exchange("endpointAdd",
+                // Guardar la direccion
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<UsuarioDireccion> request = new HttpEntity<>(usuarioDireccion, headers);
+
+                ResponseEntity<Result> response = restTemplate.exchange(
+                        urlBase + urlApi + "/direccion/add",
                         HttpMethod.POST,
-                        entity,
-                        new ParameterizedTypeReference<Result>() {
-                });
+                        request,
+                        Result.class
+                );
 
-                direccionDAOImplementation.DireccionAddJPA(usuarioDireccion);
+                Result result = response.getBody();
+                if (result != null && result.correct) {
+                    System.out.println("Dirección guardada correctamente");
+                    // Redireccionar o mostrar éxito
+                } else {
+                    System.out.println("Error al guardar: " + result.errorMessage);
+                    model.addAttribute("error", result != null ? result.errorMessage : "Error desconocido");
+                }
+
             } else { // Editar direccion
                 System.out.println("Estoy actualizando direccion");
-                //direccionDAOImplementation.UpdateById(usuarioDireccion);
-                direccionDAOImplementation.UpdateByIdJPA(usuarioDireccion);
-            }*/
+
+                // Preparar headers y entidada
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                HttpEntity<UsuarioDireccion> requestEntity = new HttpEntity<>(usuarioDireccion, headers);
+
+                // Llamada PUT
+                ResponseEntity<String> response = restTemplate.exchange(
+                        urlBase + urlApi + "/direccionUpdate/" + usuarioDireccion.Direccion.getIdDireccion(),
+                        HttpMethod.PUT,
+                        requestEntity,
+                        String.class
+                );
+
+                if (response.getStatusCode() == HttpStatus.OK) {
+                    System.out.println("Direccion actualizado correctamente.");
+                } else {
+                    System.out.println("Error al actualizar direccion: " + response.getBody());
+                }
+            }
         }
         // Si no hay errores en la BD guardar los datos
 //        usuarioDAOImplementation.Add(usuarioDireccion);

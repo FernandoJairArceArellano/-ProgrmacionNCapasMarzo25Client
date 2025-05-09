@@ -142,10 +142,13 @@
                 </div>
                 <hr>
                 <!-- Inputs ocultos para jQuery -->
-                <!--                    <input type="hidden" id="idPais" th:value="${usuarioDireccion.Direccion.Colonia.Municipio.Estado.Pais.IdPais}" />
-                    <input type="hidden" id="idEstado" th:value="${usuarioDireccion.Direccion.Colonia.Municipio.Estado.IdEstado}" />
-                    <input type="hidden" id="idMunicipio" th:value="${usuarioDireccion.Direccion.Colonia.Municipio.IdMunicipio}" />
-                    <input type="hidden" id="idColonia" th:value="${usuarioDireccion.Direccion.Colonia.IdColonia}" />-->
+                <!-- <input type="hidden" id="idPais"
+                    th:value="${usuarioDireccion.Direccion.Colonia.Municipio.Estado.Pais.IdPais}" />
+                <input type="hidden" id="idEstado"
+                    th:value="${usuarioDireccion.Direccion.Colonia.Municipio.Estado.IdEstado}" />
+                <input type="hidden" id="idMunicipio"
+                    th:value="${usuarioDireccion.Direccion.Colonia.Municipio.IdMunicipio}" />
+                <input type="hidden" id="idColonia" th:value="${usuarioDireccion.Direccion.Colonia.IdColonia}" /> -->
 
                 <div class="row g-2"
                     th:if="${(usuarioDireccion.Usuario.IdUsuario != 0 && usuarioDireccion.Direccion.IdDireccion > 0)
@@ -250,7 +253,6 @@
             var key = event.key;
             var regEx = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
             var spanError = document.getElementById(elemento.id + "Error");
-
             if (key.match(regEx)) {
                 console.log("Funciona");
                 spanError.innerHTML = "";
@@ -266,7 +268,6 @@
             var key = event.key;
             var regEx = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
             var spanError = document.getElementById(elemento.id + "Error");
-
             if (key.match(regEx)) {
                 spanError.innerHTML = "";
                 return true;
@@ -290,7 +291,6 @@
             var key = event.key;
             var regEx = /^[A-Z0-9]+$/;
             var spanError = document.getElementById(elemento.id + "Error");
-
             if (key.match(regEx)) {
                 spanError.innerHTML = "";
                 return true;
@@ -307,7 +307,6 @@
         function validarSexo(input) {
             let regex = /^[MFmf]$/; // Solo acepta M o F en mayúscula o minúscula
             let errorSpan = document.getElementById(input.id + "Error");
-
             if (regex.test(input.value)) {
                 errorSpan.innerHTML = "";
             } else {
@@ -319,7 +318,6 @@
             // De 4 a 20 caracteres alfanuméricos, permitiendo "_" y "-"        
             let regex = /^[a-zA-Z0-9_-]{4,20}$/;
             let errorSpan = document.getElementById(input.id + "Error");
-
             if (regex.test(input.value)) {
                 errorSpan.innerHTML = "";
             } else {
@@ -330,13 +328,10 @@
         function validarEmail(input) {
             // Expresión regular para validar correos electrónicos
             let regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
             // Obtiene el valor del input
             let value = input.value;
-
             // Elemento donde se mostrará el error
             let errorSpan = document.getElementById(input.id + "Error");
-
             if (regex.test(value)) {
                 // Si es válido, limpiamos el mensaje de error
                 errorSpan.innerHTML = "";
@@ -349,7 +344,6 @@
         function validarPassword(event, elemento) {
             var regEx = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
             var spanError = document.getElementById(elemento.id + "Error");
-
             if (regEx.test(elemento.value)) {
                 spanError.innerHTML = "";
             } else {
@@ -361,7 +355,6 @@
             var key = event.key;
             var regEx = /^[0-9]+$/;
             var spanError = document.getElementById(elemento.id + "Error");
-
             if (key.match(regEx) && elemento.value.length < 10) {
                 spanError.innerHTML = "";
                 return true;
@@ -374,7 +367,6 @@
         function validarCelular(input) {
             let regex = /^\+52\d{10}$/; // Debe empezar con +52 y seguir con 10 dígitos
             let errorSpan = document.getElementById(input.id + "Error");
-
             if (regex.test(input.value)) {
                 errorSpan.innerHTML = "";
             } else {
@@ -385,7 +377,6 @@
         function SoloLetrasAscii(event, elemento) {
             var key = event.keyCode;
             var spanError = document.getElementById(elemento.id + "Error");
-
             if ((key >= 65 && key <= 90) || (key >= 97 && key <= 122)) {
                 console.log("Todo OK");
                 spanError.innerHTML = "";
@@ -420,7 +411,6 @@
                 }
                 );
             });
-
             $("#estadoddl").change(function () {
                 $.ajax({
                     type: 'GET',
@@ -438,9 +428,7 @@
                     }
                 }
                 );
-
             });
-
             $("#municipioddl").change(function () {
                 $.ajax({
                     type: 'GET',
@@ -459,13 +447,10 @@
                 }
                 );
             });
-
             $("#coloniaddl").change(function () {
                 $("#CodigoPostal").val($("#coloniaddl option:selected").data("cp"));
             });
-
         });
-
         document.getElementById('imagenFile').addEventListener('change', function (event) {
             const file = event.target.files[0];
             if (file) {
@@ -476,7 +461,6 @@
                 reader.readAsDataURL(file);
             }
         });
-
         document.getElementById('imagenFile').addEventListener('change', function (event) {
             const file = event.target.files[0];
             if (file) {
@@ -487,38 +471,50 @@
                 reader.readAsDataURL(file);
             }
         });
-
     </script>
+    
     <script th:inline="javascript">
-        const idPaisActual = [[${ usuarioDireccion.Direccion.Colonia.Municipio.Estado.Pais.IdPais }]];
-        const idEstadoActual = [[${ usuarioDireccion.Direccion.Colonia.Municipio.Estado.IdEstado }]];
-        const idMunicipioActual = [[${ usuarioDireccion.Direccion.Colonia.Municipio.IdMunicipio }]];
-        const idColoniaActual = [[${ usuarioDireccion.Direccion.Colonia.IdColonia }]];
-        const codigoPostalActual = [[${ #strings.escapeJavaScript(usuarioDireccion.Direccion.Colonia.CodigoPostal) }]];
+        const idPaisActual = [[${
+            usuarioDireccion.Direccion.Colonia.Municipio.Estado.Pais.IdPais
+        }
+        ]];
+        const idEstadoActual = [[${
+            usuarioDireccion.Direccion.Colonia.Municipio.Estado.IdEstado
+        }
+        ]];
+        const idMunicipioActual = [[${
+            usuarioDireccion.Direccion.Colonia.Municipio.IdMunicipio
+        }
+        ]];
+        const idColoniaActual = [[${
+            usuarioDireccion.Direccion.Colonia.IdColonia
+        }
+        ]];
+        const codigoPostalActual = [[${
+            #strings.escapeJavaScript(usuarioDireccion.Direccion.Colonia.CodigoPostal)
+        }
+        ]];
 
         $(document).ready(function () {
             if (idColoniaActual > 0) {
-                $.get("/estadoapi/v1/byidpais/" + idPaisActual, function (estados) {
+                $.get("http://localhost:8081/estadoapi/v1/byidpais/" + idPaisActual, function (estados) {
                     $("#estadoddl").empty().append('<option value="0">Selecciona un Estado</option>');
-                    $.each(estados.objects, function (i, estado) {
+                    $.each(estados.object, function (i, estado) {
                         const selected = estado.idEstado === idEstadoActual ? 'selected' : '';
                         $("#estadoddl").append(`<option value="${estado.idEstado}" ${selected}>${estado.nombre}</option>`);
                     });
-
-                    $.get("/municipioapi/v1/byidestado/" + idEstadoActual, function (municipios) {
+                    $.get("http://localhost:8081/municipioapi/v1/byidestado/" + idEstadoActual, function (municipios) {
                         $("#municipioddl").empty().append('<option value="0">Selecciona un Municipio</option>');
-                        $.each(municipios.objects, function (i, municipio) {
+                        $.each(municipios.object, function (i, municipio) {
                             const selected = municipio.idMunicipio === idMunicipioActual ? 'selected' : '';
                             $("#municipioddl").append(`<option value="${municipio.idMunicipio}" ${selected}>${municipio.nombre}</option>`);
                         });
-
-                        $.get("/coloniaapi/v1/byidmunicipio/" + idMunicipioActual, function (colonias) {
+                        $.get("http://localhost:8081/coloniaapi/v1/byidmunicipio/" + idMunicipioActual, function (colonias) {
                             $("#coloniaddl").empty().append('<option value="0">Selecciona una Colonia</option>');
-                            $.each(colonias.objects, function (i, colonia) {
+                            $.each(colonias.object, function (i, colonia) {
                                 const selected = colonia.idColonia === idColoniaActual ? 'selected' : '';
                                 $("#coloniaddl").append(`<option value="${colonia.idColonia}" data-cp="${colonia.codigoPostal}" ${selected}>${colonia.nombre}</option>`);
                             });
-
                             $("#CodigoPostal").val(codigoPostalActual);
                         });
                     });
