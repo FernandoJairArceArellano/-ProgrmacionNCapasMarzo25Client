@@ -275,7 +275,7 @@ public class UsuarioController {
             //Validaciones
         }
 
-        return "CargaMasiva";
+        return "/CargaMasiva";
     }
 
     @GetMapping("/formEditable")
@@ -431,8 +431,7 @@ public class UsuarioController {
                 HttpMethod.POST,
                 request,
                 new ParameterizedTypeReference<Result<UsuarioDireccion>>() {
-        }
-        );
+        });
 
         Result<UsuarioDireccion> resultDinamico = responseEntityDinamico.getBody();
 

@@ -19,7 +19,6 @@
                 <div class="row g-3"
                     th:if="${(usuarioDireccion.Usuario.IdUsuario == 0 && usuarioDireccion.Direccion.IdDireccion == 0)
                          || (usuarioDireccion.Usuario.IdUsuario != 0 && usuarioDireccion.Direccion.IdDireccion == -1)}">
-                    <!--&& usuarioDireccion.Direccion.IdDireccion == -1 pendiente de validar la direccion-->
                     <h5 class="mb-3">Datos del Usuario</h5>
 
                     <div class="col-md-8">
@@ -97,6 +96,9 @@
                             <input type="file" class="form-control mb-2" name="imagenFile" id="imagenFile">
                             <img id="previewImage" class="img-fluid rounded img-container"
                                 th:src="${usuarioDireccion.Usuario.Imagen != null} ? 'data:image/png;base64,' + ${usuarioDireccion.Usuario.Imagen} :'https://static-00.iconduck.com/assets.00/profile-default-icon-2048x2045-u3j7s5nj.png'" />
+                            <a class="btn btn-danger btn-sm btn-action" th:if="${usuarioDireccion.Usuario.Imagen != null}">
+                                <i class="bi bi-trash"></i>
+                            </a>
                         </div>
                     </div>
                     <hr>
@@ -472,7 +474,7 @@
             }
         });
     </script>
-    
+
     <script th:inline="javascript">
         const idPaisActual = [[${
             usuarioDireccion.Direccion.Colonia.Municipio.Estado.Pais.IdPais

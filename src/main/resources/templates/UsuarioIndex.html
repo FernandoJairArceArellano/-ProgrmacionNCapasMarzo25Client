@@ -11,7 +11,7 @@
     <div class="container table-container">
         <h4>Hola, Bienvenido <span th:text="${nombre}"></span></h4>
 
-<!--        <div class="alert alert-success">
+        <!--        <div class="alert alert-success">
             <strong>Exito!</strong> mensaje correcto pendiente de implementar
         </div>-->
 
@@ -54,8 +54,8 @@
                                 Logica</label>
                             <select class="form-select" id="statusUsuario" th:field="*{Status}">
                                 <option value="-1" selected>Todos</option>
-                                <option value="0">Activos</option>
-                                <option value="1">Inactivos</option>
+                                <option value="1">Activos</option>
+                                <option value="0">Inactivos</option>
                             </select>
                         </div>
                         <div class="col-6 col-md-1 d-grid">
@@ -71,12 +71,12 @@
             <table class="table table-striped table-hover">
                 <thead class="table-dark">
                     <tr>
-                        <th style="min-width: 50px;">IdUsuario <i class="bi bi-arrow-down-up"></i></th>
+                        <th style="min-width: 80px;">Id <i class="bi bi-arrow-down-up"></i></th>
                         <th style="min-width: 100px;">Imagen</th>
                         <th style="min-width: 150px;">Nombre <i class="bi bi-arrow-down-up"></i></th>
                         <th style="min-width: 100px;">Username <i class="bi bi-arrow-down-up"></i></th>
                         <th style="min-width: 100px;">Status <i class="bi bi-arrow-down-up"></i></th>
-                        <th style="min-width: 100px;">Contacto <i class="bi bi-arrow-down-up"></i></th>
+                        <th style="min-width: 110px;">Contacto <i class="bi bi-arrow-down-up"></i></th>
                         <th style="min-width: 300px;">Dirección <i class="bi bi-arrow-down-up"></i></th>
                         <th>Acciones</th>
                     </tr>
@@ -106,8 +106,19 @@
                                     th:text="${usuarioDirecciones.Usuario.Status == 1 ? 'Activo' : 'Inactivo'}"></label>
                             </div>
                         </td>
-                        <td class="align-middle" data-label="Contacto"
-                            th:text="|📞 ${usuarioDirecciones.Usuario.Telefono} 📱 ${usuarioDirecciones.Usuario.NCelular}|">
+                        <td class="align-middle" data-label="Contacto">
+                            <div th:if="${usuarioDirecciones.Usuario.Telefono}">
+                                <span>📞</span>
+                                <span th:text="${usuarioDirecciones.Usuario.Telefono}"></span>
+                            </div>
+                            <div th:if="${usuarioDirecciones.Usuario.NCelular}">
+                                <span>📱</span>
+                                <span th:text="${usuarioDirecciones.Usuario.NCelular}"></span>
+                            </div>
+                            <div th:if="${usuarioDirecciones.Usuario.email}">
+                                <span>📧</span>
+                                <span th:text="${usuarioDirecciones.Usuario.email}"></span>
+                            </div>
                         </td>
                         <td class="align-middle" data-label="Dirección">
                             <ul>
@@ -135,11 +146,11 @@
                             <div class="d-flex flex-column flex-md-row gap-2 justify-content-center">
                                 <a class="btn btn-warning btn-sm btn-action"
                                     th:href="@{/Usuario/Form/{IdUsuario}(IdUsuario = ${usuarioDirecciones.Usuario.IdUsuario})}">
-                                    <i class="bi bi-pencil-square"></i> Editar
+                                    <i class="bi bi-pencil-square"></i>
                                 </a>
                                 <a class="btn btn-danger btn-sm btn-action"
                                     th:href="@{/Usuario/Delete/{IdUsuario}(IdUsuario = ${usuarioDirecciones.Usuario.IdUsuario})}">
-                                    <i class="bi bi-trash3"></i> Eliminar
+                                    <i class="bi bi-trash3"></i>
                                 </a>
                             </div>
                         </td>
