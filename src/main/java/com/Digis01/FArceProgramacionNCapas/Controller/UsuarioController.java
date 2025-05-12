@@ -157,7 +157,7 @@ public class UsuarioController {
         try {
 
             ResponseEntity<Result> responseEntity = restTemplate.exchange(
-                    urlBase + urlApi + "/usuario/delete/" + IdUsuario,
+                    urlBase + urlApi + "/delete/" + IdUsuario,
                     HttpMethod.DELETE,
                     HttpEntity.EMPTY,
                     new ParameterizedTypeReference<Result>() {
@@ -198,69 +198,64 @@ public class UsuarioController {
     }
 
     // Procesa el archivo subido por el usuario
-//    @PostMapping("/CargaMasiva")
-//    public String CargaMasiva(@RequestParam MultipartFile archivo, Model model, HttpSession session) {
-//
-//        // Validación inicial: si no se seleccionó archivo
-//        /*if (archivo == null || archivo.isEmpty()) {
-//            model.addAttribute("mensaje", "No se seleciono archivo.");
-//            return "cargaMasiva";
-//            
-//        }*/
-//        try {
-//            // Guardsarlo en un punto del sistema
-//            if (archivo != null && !archivo.isEmpty()) { // Mientras el archivo no sea nulo ni esta vacio
-//
-//                //Body 
-//                ByteArrayResource byteArrayResource = new ByteArrayResource(archivo.getBytes()) {
-//                    @Override
-//                    public String getFilename() {
-//                        return archivo.getOriginalFilename();
-//                    }
-//                };
-//
-//                MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-//                body.add("archivo", byteArrayResource);
-//
-//                //Headers
-//                HttpHeaders httpHeaders = new HttpHeaders();
-//                httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
-//
-//                //Entidad de la petición
-//                HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity(body, httpHeaders);
-//
-//                ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(
-//                        urlBase + urlApi + "/cargaMasiva/",
-//                        HttpMethod.GET,
-//                        httpEntity,
-//                        new ParameterizedTypeReference<Map<String, Object>>() {
-//                });
-//
-//                // Validar los datos leídos del archivo
-//                List<ResultFile> listaErrores = ValidarArchivo(listaUsuarios);
-//
-//                //¿Dónde viene mi lista de Errores?
-//                //(boolean) responseEntity.getBody().get("correct") == true
-//                if (responseEntity.getStatusCode().is2xxSuccessful()) {
-//                    // Si no hay errores, se guarda la ruta en la sesión y se puede procesar más adelante
-//                    session.setAttribute("urlFile", responseEntity.getBody().get("object")); // Guarda ruta en sesión si no hay errores
-//                    model.addAttribute("listaErrores", listaErrores); // Mostrar la lista de errores "ya procesados"
-//                    model.addAttribute("archivoNombre", archivo.getOriginalFilename());
-//                    model.addAttribute("exito", true);
-//                } else {
-//                    if (responseEntity.getStatusCode().is4xxClientError()) {
-//                        // Si hay errores, se envían al frontend
-//                        model.addAttribute("listaErrores", (String) responseEntity.getBody().get("objects")); // Mostrar errores en el frontend
-//                    }
-//                }
-//            }
-//        } catch (Exception ex) {
-//            ex.printStackTrace(); // Log del error
-//            model.addAttribute("mensaje", "Error al procesar el archivo.");
-//            return "redirect:/Usuario/CargaMasiva";
-//        }
-//        return "CargaMasiva"; // regresar a la vista
-//    }
+    @PostMapping("/CargaMasiva")
+    public String CargaMasiva(@RequestParam MultipartFile archivo, Model model, HttpSession session) {
+
+        try {
+            // Guardsarlo en un punto del sistema
+            if (archivo != null && !archivo.isEmpty()) { // Mientras el archivo no sea nulo ni esta vacio
+
+                //Body 
+                ByteArrayResource byteArrayResource = new ByteArrayResource(archivo.getBytes()) {
+                    @Override
+                    public String getFilename() {
+                        return archivo.getOriginalFilename();
+                    }
+                };
+
+                MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+                body.add("archivo", byteArrayResource);
+
+                //Headers
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+                //Entidad de la petición
+                HttpEntity<MultiValueMap<String, Object>> httpEntity 
+                        = new HttpEntity(body, httpHeaders);
+
+                ResponseEntity<Map<String, Object>> responseEntity = restTemplate.exchange(
+                        urlBase + urlApi + "/cargaMasiva",
+                        HttpMethod.POST,
+                        httpEntity,
+                        new ParameterizedTypeReference<Map<String, Object>>() {
+                });
+
+                // Validar los datos leídos del archivo
+                //List<ResultFile> listaErrores = new ArrayList<>();
+
+                //¿Dónde viene mi lista de Errores?
+                //(boolean) responseEntity.getBody().get("correct") == true;
+                if (responseEntity.getStatusCode().is2xxSuccessful()) {
+                    // Si no hay errores, se guarda la ruta en la sesión y se puede procesar más adelante
+                    session.setAttribute("urlFile", responseEntity.getBody().get("object")); // Guarda ruta en sesión si no hay errores
+                    model.addAttribute("archivoNombre", archivo.getOriginalFilename());
+                    model.addAttribute("exito", true);
+                } else {
+                    if (responseEntity.getStatusCode().is4xxClientError()) {
+                        // Si hay errores, se envían al frontend
+                        model.addAttribute("listaErrores", (String) responseEntity.getBody().get("objects")); // Mostrar errores en el frontend
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace(); // Log del error
+            model.addAttribute("mensaje", "Error al procesar el archivo.");
+            return "redirect:/Usuario/CargaMasiva";
+        }
+        return "CargaMasiva"; // regresar a la vista
+    }
+
     // Procesar archivo
     @GetMapping("/CargaMasiva/Procesar")
     public String ProcesarArchivo(HttpSession session) {
@@ -453,12 +448,12 @@ public class UsuarioController {
         Result<Rol> resultRol = responseRolEntity.getBody();
         model.addAttribute("roles", resultRol.objects);
 
-        Usuario usuarioBusqueda = new Usuario();
-        usuarioBusqueda.setStatus(-1);
-        usuarioBusqueda.Rol = new Rol();
+        //Usuario usuarioBusqueda = new Usuario();
+        //usuarioBusqueda.setStatus(-1);
+        //usuarioBusqueda.Rol = new Rol();
 
         model.addAttribute("listaUsuarios", result.objects);
-        model.addAttribute("usuarioBusqueda", usuarioBusqueda);
+        //model.addAttribute("usuarioBusqueda", usuarioBusqueda);
 
         return "UsuarioIndex";
     }
