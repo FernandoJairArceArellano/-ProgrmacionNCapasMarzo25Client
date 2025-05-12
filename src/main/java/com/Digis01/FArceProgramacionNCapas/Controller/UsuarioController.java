@@ -85,7 +85,6 @@ public class UsuarioController {
         usuarioBusqueda.Rol = new Rol();
 
         model.addAttribute("usuarioBusqueda", usuarioBusqueda);
-        //model.addAttribute("roles", resultRol.object);
         model.addAttribute("roles", resultRol.objects);
         model.addAttribute("listaUsuarios", response.objects);
 
@@ -427,15 +426,15 @@ public class UsuarioController {
 
         HttpEntity<Usuario> request = new HttpEntity<>(usuario, headers);
 
-        ResponseEntity<Result> responseEntity = restTemplate.exchange(
+        ResponseEntity<Result<UsuarioDireccion>> responseEntityDinamico = restTemplate.exchange(
                 urlBase + urlApi + "/getAllDinamico",
                 HttpMethod.POST,
                 request,
-                new ParameterizedTypeReference<Result>() {
+                new ParameterizedTypeReference<Result<UsuarioDireccion>>() {
         }
         );
 
-        Result result = responseEntity.getBody();
+        Result<UsuarioDireccion> resultDinamico = responseEntityDinamico.getBody();
 
         // Obtener roles
         ResponseEntity<Result<Rol>> responseRolEntity = restTemplate.exchange(
@@ -448,12 +447,12 @@ public class UsuarioController {
         Result<Rol> resultRol = responseRolEntity.getBody();
         model.addAttribute("roles", resultRol.objects);
 
-        //Usuario usuarioBusqueda = new Usuario();
-        //usuarioBusqueda.setStatus(-1);
-        //usuarioBusqueda.Rol = new Rol();
+        Usuario usuarioBusqueda = new Usuario();
+        usuarioBusqueda.setStatus(-1);
+        usuarioBusqueda.Rol = new Rol();
 
-        model.addAttribute("listaUsuarios", result.objects);
-        //model.addAttribute("usuarioBusqueda", usuarioBusqueda);
+        model.addAttribute("listaUsuarios", resultDinamico.objects);
+        model.addAttribute("usuarioBusqueda", usuarioBusqueda);
 
         return "UsuarioIndex";
     }
